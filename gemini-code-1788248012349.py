@@ -7,7 +7,7 @@ st.set_page_config(
     page_title="نظام حصر الأصول والدعم التقني", page_icon="💻", layout="wide"
 )
 
-# تخصيص التصميم (تنسيق RTL + تأثيرات حركية وتفاعلية للبطاقات)
+# تخصيص التصميم (تنسيق RTL + تأثيرات حركية وتفاعلية للبطاقات وإخفاء نصوص الـ submit)
 st.markdown(
     """
     <style>
@@ -24,6 +24,10 @@ st.markdown(
     div.stDataFrame {
         direction: rtl;
         text-align: right;
+    }
+    /* إاخفاء نص Press Enter to submit من جميع الحقول النصية */
+    [data-testid="InputInstructions"] {
+        display: none !important;
     }
     /* تصميم بطاقات الإحصائيات التفاعلية */
     .metric-card {
@@ -56,9 +60,62 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# تهيئة الذاكرة المؤقتة للبيانات بالترتيب المطلوب (المنطقة ← المبنى ← الدور ← ...)
+# 1. تهيئة المستخدمين الافتراضيين
+if "users_df" not in st.session_state:
+  st.session_state.users_df = pd.DataFrame(
+      {
+          "اسم المستخدم": ["admin", "support1"],
+          "كلمة المرور": ["123456", "111111"],
+          "الصلاحية": ["مدير النظام", "فني دعم"],
+          "الحالة": ["نشط", "نشط"],
+      }
+  )
+
+# 2. تهيئة حالة تسجيل الدخول
+if "logged_in" not in st.session_state:
+  st.session_state.logged_in = False
+  st.session_state.current_user = ""
+  st.session_state.user_role = ""
+
+# 3. تهيئة البيانات التجريبية للعهد وإضافة "مبنى الوزارة الرئيسي"
 if "assets_df" not in st.session_state:
   st.session_state.assets_df = pd.DataFrame(
+      [
+          {
+              "المنطقة": "مبنى الوزارة الرئيسي",
+              "المبنى": "المبنى الرئيسي - الدور الأرضي",
+              "الدور": "الدور الأرضي",
+              "الإدارة": "إدارة النظم الآلية والبنية التحتية",
+              "القسم": "قسم التشغيل والدعم التقني",
+              "اسم الموظف": "محمد عبد الله",
+              "نوع الجهاز (PC)": "Lenovo M70q (Type A)",
+              "سيريال الجهاز": "PC-9882103",
+              "مقاس/نوع الشاشة": "Lenovo 24 inch",
+              "سيريال الشاشة": "MON-554120",
+              "موديل الطابعة": "Canon MF463dw (Black)",
+              "نوع طباعة الطابعة": "أسود وأبيض",
+              "سيريال الطابعة": "PRN-778812",
+              "حالة العطل": "سليم",
+              "ملاحظات": "تم التسليم بحالة جيدة",
+          },
+          {
+              "المنطقة": "منطقة العاصمة التعليمية",
+              "المبنى": "مدرسة ثانوية الشويخ",
+              "الدور": "الدور الأول",
+              "الإدارة": "مراقبة التقنيات التربوية",
+              "القسم": "قسم الدعم الفني",
+              "اسم الموظف": "أحمد العتيبي",
+              "نوع الجهاز (PC)": "Lenovo M90t (Type C)",
+              "سيريال الجهاز": "PC-4412903",
+              "مقاس/نوع الشاشة": "Lenovo 27 inch",
+              "سيريال الشاشة": "MON-998231",
+              "موديل الطابعة": "Canon MF754Cdw (Color)",
+              "نوع طباعة الطابعة": "ملون",
+              "سيريال الطابعة": "PRN-332145",
+              "حالة العطل": "بطء في التشغيل يحتاج فحص الباور",
+              "ملاحظات": "جهاز خاص بغرفة الإدارة",
+          },
+      ],
       columns=[
           "المنطقة",
           "المبنى",
@@ -75,15 +132,57 @@ if "assets_df" not in st.session_state:
           "سيريال الطابعة",
           "حالة العطل",
           "ملاحظات",
-      ]
+      ],
   )
 
-# تهيئة نظام التنقل في الذاكرة المؤقتة
+# --- شاشة تسجيل الدخول ---
+if not st.session_state.logged_in:
+  st.markdown(
+      """
+        <div style="background: linear-gradient(to right, #065f46, #0f766e); padding: 30px; border-radius: 15px; color: white; text-align: center; margin-bottom: 30px;">
+            <h1 style="margin: 0; font-size: 32px;">نظام حصر الأصول والدعم التقني</h1>
+            <p style="margin: 10px 0 0 0; opacity: 0.9; font-size: 18px;">وزارة التربية - إدارة النظم الآلية والبنية التحتية</p>
+        </div>
+    """,
+      unsafe_allow_html=True,
+  )
+
+  col1, col2, col3 = st.columns([1, 1.5, 1])
+  with col2:
+    st.markdown("### تسجيل الدخول للنظام")
+    with st.form("login_form"):
+      username_input = st.text_input("اسم المستخدم", value="")
+      password_input = st.text_input(
+          "كلمة المرور", type="password", value=""
+      )
+      login_submit = st.form_submit_button("دخول")
+
+      if login_submit:
+        users = st.session_state.users_df
+        matched = users[
+            (users["اسم المستخدم"] == username_input)
+            & (users["كلمة المرور"] == password_input)
+        ]
+        if not matched.empty:
+          st.session_state.logged_in = True
+          st.session_state.current_user = username_input
+          st.session_state.user_role = matched.iloc[0]["الصلاحية"]
+          st.success("تم تسجيل الدخول بنجاح!")
+          st.rerun()
+        else:
+          st.error("اسم المستخدم أو كلمة المرور غير صحيحة.")
+  st.stop()
+
+# تهيئة التنقل بعد تسجيل الدخول
 if "current_page" not in st.session_state:
   st.session_state.current_page = "🏠 الرئيسية وإضافة العهد"
 
-# القائمة الجانبية للتنقل اليدوي
+# القائمة الجانبية للتنقل
 st.sidebar.title("🧭 تنقل النظام")
+st.sidebar.write(
+    f"المستخدم: **{st.session_state.current_user}** ({st.session_state.user_role})"
+)
+
 nav_options = [
     "🏠 الرئيسية وإضافة العهد",
     "📋 سجل الأصول والبحث المتقدم",
@@ -92,6 +191,7 @@ nav_options = [
     "🖥️ تفاصيل إحصائيات الشاشات",
     "🖨️ تفاصيل إحصائيات الطابعات",
     "⚠️ تفاصيل الأعطال التقنية",
+    "👥 إدارة المستخدمين",
 ]
 
 selected_nav = st.sidebar.radio(
@@ -103,6 +203,13 @@ selected_nav = st.sidebar.radio(
 )
 if selected_nav != st.session_state.current_page:
   st.session_state.current_page = selected_nav
+  st.rerun()
+
+st.sidebar.markdown("---")
+if st.sidebar.button("🚪 تسجيل الخروج"):
+  st.session_state.logged_in = False
+  st.session_state.current_user = ""
+  st.session_state.user_role = ""
   st.rerun()
 
 # العنوان الثابت
@@ -119,7 +226,6 @@ st.markdown(
 df = st.session_state.assets_df
 total_records = len(df)
 
-# حساب الأرقام للإحصائيات
 total_pcs = (
     df["نوع الجهاز (PC)"].astype(bool).sum() if total_records > 0 else 0
 )
@@ -250,6 +356,7 @@ if page == "🏠 الرئيسية وإضافة العهد":
     with col1:
       regions = [
           "",
+          "مبنى الوزارة الرئيسي",
           "منطقة العاصمة التعليمية",
           "منطقة حولي التعليمية",
           "منطقة الفروانية التعليمية",
@@ -517,6 +624,55 @@ elif page == "⚠️ تفاصيل الأعطال التقنية":
       st.success("ممتاز! لا توجد أي أعطال مسجلة حالياً، كافة الأجهزة سليمة.")
   else:
     st.info("لا توجد بيانات مسجلة.")
+
+# --- 8. إدارة المستخدمين ---
+elif page == "👥 إدارة المستخدمين":
+  st.subheader("👥 إدارة مستخدمي النظام والصلاحيات")
+
+  if st.session_state.user_role != "مدير النظام":
+    st.warning(
+        "عذراً، هذه الصفحة خاصة بمدير النظام فقط ولا تمتلك صلاحية التعديل عليها."
+    )
+    st.dataframe(st.session_state.users_df, use_container_width=True)
+  else:
+    st.markdown("#### إضافة مستخدم جديد")
+    with st.form("new_user_form"):
+      ncol1, ncol2, ncol3 = st.columns(3)
+      with ncol1:
+        new_username = st.text_input("اسم المستخدم الجديد", value="")
+      with ncol2:
+        new_password = st.text_input(
+            "كلمة المرور", type="password", value=""
+        )
+      with ncol3:
+        new_role = st.selectbox(
+            "الصلاحية", ["مدير النظام", "فني دعم", "مستخدم عارض"]
+        )
+
+      add_user_btn = st.form_submit_button("إضافة المستخدم")
+      if add_user_btn:
+        if not new_username or not new_password:
+          st.warning("الرجاء إدخال اسم المستخدم وكلمة المرور.")
+        elif new_username in st.session_state.users_df["اسم المستخدم"].values:
+          st.error("اسم المستخدم موجود مسبقاً، اختر اسمًا آخر.")
+        else:
+          new_u_row = pd.DataFrame(
+              {
+                  "اسم المستخدم": [new_username],
+                  "كلمة المرور": [new_password],
+                  "الصلاحية": [new_role],
+                  "الحالة": ["نشط"],
+              }
+          )
+          st.session_state.users_df = pd.concat(
+              [st.session_state.users_df, new_u_row], ignore_index=True
+          )
+          st.success(f"تم إضافة المستخدم {new_username} بنجاح!")
+          st.rerun()
+
+    st.markdown("---")
+    st.markdown("#### قائمة المستخدمين الحاليين")
+    st.dataframe(st.session_state.users_df, use_container_width=True)
 
 # زر العودة للرئيسية إذا كان المستخدم في صفحة فرعية
 if page != "🏠 الرئيسية وإضافة العهد":
