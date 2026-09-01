@@ -102,20 +102,15 @@ if page == "🏠 الرئيسية واللوحة الشاملة":
 
   col1, col2, col3, col4, col5 = st.columns(5)
   with col1:
-    if st.metric("إجمالي الموظفين", total_records):
-      pass
+    st.metric("إجمالي الموظفين", total_records)
   with col2:
-    if st.metric("إجمالي الأجهزة", total_pcs):
-      pass
+    st.metric("إجمالي الأجهزة", total_pcs)
   with col3:
-    if st.metric("إجمالي الشاشات", total_monitors):
-      pass
+    st.metric("إجمالي الشاشات", total_monitors)
   with col4:
-    if st.metric("إجمالي الطابعات", total_printers):
-      pass
+    st.metric("إجمالي الطابعات", total_printers)
   with col5:
-    if st.metric("الأجهزة المعطلة", total_faults):
-      pass
+    st.metric("الأجهزة المعطلة", total_faults)
 
   st.info(
       "💡 يمكنك الانتقال إلى أي إحصائية تفصيلية عبر القائمة الجانبية للتحكم في"
@@ -192,7 +187,6 @@ elif page == "📥 تسجيل عهدة جديدة / رفع ملف":
           "نوع وموديل الجهاز (PC)", placeholder="مثال: Dell OptiPlex 7090"
       )
 
-      # قائمة اختيار مقاسات الشاشة
       monitor_options = [
           "غير موجود",
           "شاشة 19 بوصة",
@@ -203,7 +197,6 @@ elif page == "📥 تسجيل عهدة جديدة / رفع ملف":
       ]
       monitor_type = st.selectbox("مقاس / نوع الشاشة", monitor_options)
 
-      # قائمة اختيار موديلات الطابعات
       printer_options = [
           "غير موجود",
           "HP LaserJet Pro (أبيض وأسود)",
@@ -215,7 +208,6 @@ elif page == "📥 تسجيل عهدة جديدة / رفع ملف":
       ]
       printer_model = st.selectbox("موديل الطابعة", printer_options)
 
-      # تحديد تلقائي أو يدوي لنوع الطابعة (ملون / أبيض وأسود)
       if "ملون" in printer_model:
         printer_color_type = "ملون"
       elif "أبيض وأسود" in printer_model:
@@ -290,7 +282,8 @@ elif page == "📋 سجل الأصول والبحث المتقدم":
     col_btn1, col_btn2 = st.columns(2)
     with col_btn1:
       buffer = io.BytesIO()
-      with pd.ExcelWriter(buffer, engine="xlsxwriter") as writer:
+      # تم التعديل هنا لاستخدام محرك openpyxl المدمج لتجنب خطأ غياب مكتبة xlsxwriter
+      with pd.ExcelWriter(buffer, engine="openpyxl") as writer:
         df.to_excel(writer, sheet_name="الأصول", index=False)
       buffer.seek(0)
       st.download_button(
