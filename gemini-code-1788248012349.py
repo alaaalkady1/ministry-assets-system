@@ -78,11 +78,11 @@ if "assets_df" not in st.session_state:
       ]
   )
 
-# تهيئة نظام التنقل في الذاكرة المؤقتة إذا لم يكن موجوداً
+# تهيئة نظام التنقل في الذاكرة المؤقتة
 if "current_page" not in st.session_state:
   st.session_state.current_page = "🏠 الرئيسية وإضافة العهد"
 
-# القائمة الجانبية للتنقل اليدوي أيضاً
+# القائمة الجانبية للتنقل اليدوي
 st.sidebar.title("🧭 تنقل النظام")
 nav_options = [
     "🏠 الرئيسية وإضافة العهد",
@@ -137,16 +137,15 @@ total_faults = (
 
 page = st.session_state.current_page
 
-# --- 1. الرئيسية وإضافة العهد (دمج الواجهة الرئيسية مع النموذج) ---
+# --- 1. الرئيسية وإضافة العهد ---
 if page == "🏠 الرئيسية وإضافة العهد":
   st.subheader("📊 لوحة المؤشرات التفاعلية")
   st.markdown(
-      "<p style='color: gray;'>اضغط على أي بط أدناه للانتقال الفوري للتقرير"
+      "<p style='color: gray;'>اضغط على أي بطاقة أدناه للانتقال الفوري للتقرير"
       " الخاص به:</p>",
       unsafe_allow_html=True,
   )
 
-  # تصميم الداشبورد التفاعلي باستخدام أزرار فوق البطاقات المرئية
   dcol1, dcol2, dcol3, dcol4, dcol5 = st.columns(5)
 
   with dcol1:
@@ -221,8 +220,7 @@ if page == "🏠 الرئيسية وإضافة العهد":
 
   st.markdown("---")
 
-  # قسم تسجيل عهدة جديدة ورفع الملفات في نفس الصفحة الرئيسية
-  st.subheader("📥 استيراد البيانات (Excel / CSV) أو الإجادة اليدوية الفردية")
+  st.subheader("📥 استيراد البيانات (Excel / CSV) أو الإدخال اليدوي")
 
   with st.expander("📁 اضغط هنا لرفع ملف إكسيل جماعي", expanded=False):
     uploaded_file = st.file_uploader(
@@ -251,6 +249,7 @@ if page == "🏠 الرئيسية وإضافة العهد":
     col1, col2, col3 = st.columns(3)
     with col1:
       regions = [
+          "",
           "منطقة العاصمة التعليمية",
           "منطقة حولي التعليمية",
           "منطقة الفروانية التعليمية",
@@ -260,11 +259,10 @@ if page == "🏠 الرئيسية وإضافة العهد":
       ]
       region = st.selectbox("المنطقة", regions)
     with col2:
-      building = st.text_input(
-          "اسم المبنى", placeholder="أدخل اسم أو رقم المبنى"
-      )
+      building = st.text_input("اسم المبنى", value="")
     with col3:
       floor_options = [
+          "",
           "الدور الأرضي",
           "الدور الأول",
           "الدور الثاني",
@@ -282,17 +280,17 @@ if page == "🏠 الرئيسية وإضافة العهد":
 
     col4, col5, col6 = st.columns(3)
     with col4:
-      department = st.text_input("الإدارة", placeholder="مثال: إدارة النظم الآلية")
+      department = st.text_input("الإدارة", value="")
     with col5:
-      section = st.text_input("القسم", placeholder="التشغيل والدعم التقني")
+      section = st.text_input("القسم", value="")
     with col6:
-      employee = st.text_input("اسم الموظف المسؤول")
+      employee = st.text_input("اسم الموظف المسؤول", value="")
 
     st.markdown("#### تفاصيل الأجهزة، الشاشات، والطابعات")
     col7, col8 = st.columns(2)
     with col7:
       pc_options = [
-          "غير موجود",
+          "",
           "Lenovo M70q (Type B)",
           "Lenovo M70q (Type A)",
           "Lenovo M90t (Type C)",
@@ -300,18 +298,18 @@ if page == "🏠 الرئيسية وإضافة العهد":
       ]
       pc_type = st.selectbox("نوع الجهاز (PC)", pc_options)
 
-      if pc_type != "laptop":
-        monitor_options = [
-            "غير موجود",
-            "Lenovo 24 inch",
-            "Lenovo 27 inch",
-        ]
+      if pc_type and pc_type != "laptop":
+        monitor_options = ["", "Lenovo 24 inch", "Lenovo 27 inch"]
         monitor_type = st.selectbox("مقاس / نوع الشاشة", monitor_options)
       else:
-        monitor_type = "لابتوب (شاشة مدمجة)"
+        monitor_type = (
+            "لابتوب (شاشة مدمجة)" if pc_type == "laptop" else ""
+        )
+        if pc_type == "laptop":
+          st.info("تم تحديد شاشة مدمجة تلقائياً لأن الجهاز Laptop.")
 
       printer_options = [
-          "غير موجود",
+          "",
           "Canon MF463dw (Black)",
           "Canon MF754Cdw (Color)",
           "Label Printer",
@@ -325,20 +323,18 @@ if page == "🏠 الرئيسية وإضافة العهد":
       elif printer_model == "Label Printer":
         printer_color_type = "ملصقات"
       else:
-        printer_color_type = "غير محدد"
+        printer_color_type = ""
 
     with col8:
-      pc_serial = st.text_input("سيريال نمبر الجهاز (PC S/N)")
-      monitor_serial = st.text_input("سيريال نمبر الشاشة")
-      printer_serial = st.text_input("سيريال نمبر الطابعة")
+      pc_serial = st.text_input("سيريال نمبر الجهاز (PC S/N)", value="")
+      monitor_serial = st.text_input("سيريال نمبر الشاشة", value="")
+      printer_serial = st.text_input("سيريال نمبر الطابعة", value="")
 
     col_fault, col_notes = st.columns(2)
     with col_fault:
-      fault_status = st.text_input(
-          "خانة تسجيل العطل", placeholder="سليم / أو تفاصيل العطل"
-      )
+      fault_status = st.text_input("خانة تسجيل العطل", value="")
     with col_notes:
-      notes = st.text_input("ملاحظات إضافية")
+      notes = st.text_input("ملاحظات إضافية", value="")
 
     submitted = st.form_submit_button("حفظ في سجل الأصول")
     if submitted:
@@ -376,10 +372,7 @@ if page == "🏠 الرئيسية وإضافة العهد":
 elif page == "📋 سجل الأصول والبحث المتقدم":
   st.subheader("📋 سجل الأصول والبحث الفوري")
   if len(df) > 0:
-    search_query = st.text_input(
-        "🔍 ابحث في السجلات (بالمنطقة، الاسم، السيريال، الإدارة، أو الدور)...",
-        "",
-    )
+    search_query = st.text_input("🔍 ابحث في السجلات...", value="")
     if search_query:
       mask = df.astype(str).apply(
           lambda x: x.str.contains(search_query, case=False, na=False)
