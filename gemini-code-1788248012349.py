@@ -61,10 +61,37 @@ if "assets_df" not in st.session_state:
       ]
   )
 
-# القوائم الرئيسية (Tabs)
-tab1, tab2, tab3 = st.tabs(
-    ["📥 تسجيل عهدة / رفع ملف Excel", "📊 لوحة الإحصائيات", "📋 سجل الأصول والبحث"]
+# --- 1. لوحة الإحصائيات في الواجهة الرئيسية بشكل دائم ---
+st.subheader("📊 مؤشرات وإحصائيات الحصر الشاملة")
+df_stats = st.session_state.assets_df
+
+total_records = len(df_stats)
+total_pcs = (
+    df_stats["نوع الجهاز (PC)"].astype(bool).sum() if total_records > 0 else 0
 )
+total_monitors = (
+    df_stats["نوع الشاشة"].astype(bool).sum() if total_records > 0 else 0
+)
+total_printers = (
+    df_stats["نوع الطابعة"].astype(bool).sum() if total_records > 0 else 0
+)
+total_faults = (
+    df_stats[df_stats["حالة العطل"] != "سليم"]["حالة العطل"].count()
+    if total_records > 0
+    else 0
+)
+
+mcol1, mcol2, mcol3, mcol4, mcol5 = st.columns(5)
+mcol1.metric("إجمالي الموظفين", total_records)
+mcol2.metric("إجمالي الأجهزة", total_pcs)
+mcol3.metric("إجمالي الشاشات", total_monitors)
+mcol4.metric("إجمالي الطابعات", total_printers)
+mcol5.metric("الأجهزة المعطلة", total_faults)
+
+st.markdown("---")
+
+# القوائم الرئيسية (تبويبان فقط للعمليات والسجلات)
+tab1, tab2 = st.tabs(["📥 تسجيل عهدة / رفع ملف Excel", "📋 سجل الأصول والبحث المتقدم"])
 
 with tab1:
   st.subheader("استيراد البيانات الضخمة عبر ملف Excel / CSV")
@@ -86,18 +113,18 @@ with tab1:
         st.success(
             f"تم استيراد {len(df_imported)} سجلاً بنجاح إلى قاعدة البيانات!"
         )
+        st.rerun()
     except Exception as e:
       st.error(f"حدث خطأ أثناء قراءة الملف: {e}")
 
   st.markdown("---")
-  st.subheader("الإدخال اليدوي الفردي (المبنى مكون من 11 دور)")
+  st.subheader("الإدخال اليدوي الفردي (المبنى الرئيسي - 11 دور)")
 
   with st.form("manual_form"):
     col1, col2, col3 = st.columns(3)
     with col1:
       building = st.text_input("اسم المبنى", "المبنى الرئيسي")
     with col2:
-      # قائمة الأدوار من الأرضي حتى الحادي عشر
       floor_options = [
           "الدور الأرضي",
           "الدور الأول",
@@ -137,7 +164,7 @@ with tab1:
     with col_fault:
       fault_status = st.text_input(
           "خانة تسجيل العطل (إن وجدت)",
-          placeholder="مثال: لا يوجد عطل / عطل في الباور / لا يتصل بالشبكة",
+          placeholder="مثال: سليم / عطل في الباور / لا يتصل بالشبكة",
       )
     with col_notes:
       notes = st.text_input("ملاحظات إضافية")
@@ -170,44 +197,20 @@ with tab1:
             ignore_index=True,
         )
         st.success("تم تسجيل العهدة بنجاح!")
+        st.rerun()
 
 with tab2:
-  st.subheader("مؤشرات وإحصائيات الحصر الشاملة")
-  df = st.session_state.assets_df
-
-  total_records = len(df)
-  total_pcs = df["نوع الجهاز (PC)"].astype(bool).sum() if total_records > 0 else 0
-  total_monitors = (
-      df["نوع الشاشة"].astype(bool).sum() if total_records > 0 else 0
-  )
-  total_printers = (
-      df["نوع الطابعة"].astype(bool).sum() if total_records > 0 else 0
-  )
-  total_faults = (
-      df[df["حالة العطل"] != "سليم"]["حالة العطل"].count()
-      if total_records > 0
-      else 0
-  )
-
-  mcol1, mcol2, mcol3, mcol4, mcol5 = st.columns(5)
-  mcol1.metric("إجمالي الموظفين", total_records)
-  mcol2.metric("إجمالي الأجهزة", total_pcs)
-  mcol3.metric("إجمالي الشاشات", total_monitors)
-  mcol4.metric("إجمالي الطابعات", total_printers)
-  mcol5.metric("الأجهزة المعطلة", total_faults)
-
-with tab3:
   st.subheader("سجل الأصول والبحث المتقدم")
   df = st.session_state.assets_df
 
   if len(df) > 0:
-    # خانة البحث
+    # خانة البحث الفوري
     search_query = st.text_input(
-        "🔍 ابحث في السجلات (بالاسم، السيريال، الإدارة، أو الدور)...", ""
+        "🔍 ابحث في السجلات (بالاسم، السيريال، الإدارة، الدور، أو حالة العطل)...",
+        "",
     )
 
     if search_query:
-      # تنفيذ البحث في كافة الأعمدة النصية
       mask = df.astype(str).apply(
           lambda x: x.str.contains(search_query, case=False, na=False)
       ).any(axis=1)
@@ -219,7 +222,6 @@ with tab3:
 
     col_btn1, col_btn2 = st.columns(2)
     with col_btn1:
-      # زر تصدير البيانات إلى Excel
       buffer = io.BytesIO()
       with pd.ExcelWriter(buffer, engine="xlsxwriter") as writer:
         df.to_excel(writer, sheet_name="الأصول", index=False)
