@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>نظام حصر الأصول - وزارة التربية</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700&display=swap');
@@ -35,7 +36,7 @@
         <!-- Navigation Tabs -->
         <div class="bg-white rounded-2xl shadow-md mb-8 border border-gray-100">
             <div class="flex border-b overflow-x-auto">
-                <button id="add-tab" class="tab-btn py-4 px-6 text-lg tab-active whitespace-nowrap flex items-center"><i class="fas fa-plus-circle ml-2"></i> تسجیل عهدة جديدة</button>
+                <button id="add-tab" class="tab-btn py-4 px-6 text-lg tab-active whitespace-nowrap flex items-center"><i class="fas fa-plus-circle ml-2"></i> تسجیل عهدة / رفع ملف</button>
                 <button id="dashboard-tab" class="tab-btn py-4 px-6 text-lg whitespace-nowrap flex items-center"><i class="fas fa-chart-pie ml-2"></i> لوحة الإحصائيات</button>
                 <button id="records-tab" class="tab-btn py-4 px-6 text-lg whitespace-nowrap flex items-center"><i class="fas fa-table ml-2"></i> سجل الأصول (الإجمالي)</button>
             </div>
@@ -43,13 +44,28 @@
 
         <!-- Add Asset Section -->
         <section id="add-section" class="tab-content fade-in">
+            <!-- Excel Import Card -->
+            <div class="bg-gradient-to-br from-emerald-50 to-teal-50 rounded-2xl shadow-lg p-8 border border-emerald-200 mb-8">
+                <h2 class="text-2xl font-bold text-emerald-900 mb-3 flex items-center">
+                    <i class="fas fa-file-excel text-emerald-600 ml-3 text-3xl"></i> استيراد البيانات الضخمة عبر ملف Excel
+                </h2>
+                <p class="text-gray-600 mb-6">قم برفع ملف إكسيل جاهز يحتوي على بيانات الأجهزة دفعة واحدة لتوفير الوقت والجهد.</p>
+                
+                <div class="flex flex-col md:flex-row items-center gap-4 bg-white p-6 rounded-xl border border-emerald-100 shadow-sm">
+                    <input type="file" id="excel-file-input" accept=".xlsx, .xls, .csv" class="w-full md:w-auto p-2 border border-gray-300 rounded-xl bg-gray-50 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-emerald-700 file:text-white hover:file:bg-emerald-800 cursor-pointer">
+                    <button id="import-excel-btn" class="w-full md:w-auto bg-emerald-700 hover:bg-emerald-800 text-white px-6 py-3 rounded-xl font-bold shadow transition flex items-center justify-center">
+                        <i class="fas fa-upload ml-2"></i> رفع ومعالجة الملف
+                    </button>
+                </div>
+            </div>
+
+            <!-- Manual Form Card -->
             <div class="bg-white rounded-2xl shadow-xl p-8 border border-gray-100">
                 <h2 class="text-2xl font-bold text-gray-800 mb-6 pb-3 border-b flex items-center">
-                    <i class="fas fa-laptop-code text-emerald-700 ml-3"></i> نموذج إدخال عهدة جهاز وملاحقه
+                    <i class="fas fa-laptop-code text-emerald-700 ml-3"></i> أو الإدخال اليدوي الفردي لجهاز وملاحقه
                 </h2>
                 
                 <form id="asset-form">
-                    <!-- Location & User Details -->
                     <h3 class="text-lg font-semibold text-emerald-800 mb-4 bg-emerald-50 p-3 rounded-lg border-r-4 border-emerald-600">بيانات الموقع والموظف</h3>
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                         <div>
@@ -87,10 +103,8 @@
                         </div>
                     </div>
                     
-                    <!-- Hardware Details -->
                     <h3 class="text-lg font-semibold text-emerald-800 mb-4 bg-emerald-50 p-3 rounded-lg border-r-4 border-emerald-600">تفاصيل العهدة والأرقام التسلسلية (Serial Numbers)</h3>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8 p-4 bg-gray-50 rounded-xl border">
-                        <!-- PC -->
                         <div>
                             <label class="block text-gray-700 font-medium mb-2">نوع وموديل الجهاز (PC)</label>
                             <input type="text" id="pc-type" class="w-full p-3 bg-white border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-600 focus:outline-none" placeholder="مثال: Dell OptiPlex 7090">
@@ -99,7 +113,6 @@
                             <label class="block text-gray-700 font-medium mb-2">سيريال نمبر الجهاز (PC S/N)</label>
                             <input type="text" id="pc-serial" class="w-full p-3 bg-white border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-600 focus:outline-none" placeholder="S/N">
                         </div>
-                        <!-- Monitor -->
                         <div>
                             <label class="block text-gray-700 font-medium mb-2">نوع وحجم الشاشة</label>
                             <input type="text" id="monitor-type" class="w-full p-3 bg-white border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-600 focus:outline-none" placeholder="مثال: Dell 24 inch">
@@ -108,7 +121,6 @@
                             <label class="block text-gray-700 font-medium mb-2">سيريال نمبر الشاشة (Monitor S/N)</label>
                             <input type="text" id="monitor-serial" class="w-full p-3 bg-white border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-600 focus:outline-none" placeholder="S/N">
                         </div>
-                        <!-- Printer -->
                         <div>
                             <label class="block text-gray-700 font-medium mb-2">نوع الطابعة</label>
                             <input type="text" id="printer-type" class="w-full p-3 bg-white border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-600 focus:outline-none" placeholder="مثال: HP LaserJet Pro">
@@ -119,7 +131,6 @@
                         </div>
                     </div>
 
-                    <!-- Notes -->
                     <div class="mb-6">
                         <label class="block text-gray-700 font-medium mb-2">ملاحظات إضافية</label>
                         <textarea id="notes" class="w-full p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-600 focus:outline-none" rows="2" placeholder="أي ملاحظات تخص حالة الجهاز أو الصيانة..."></textarea>
@@ -190,7 +201,7 @@
             <div class="bg-white rounded-2xl shadow-xl p-8 border border-gray-100">
                 <div class="flex flex-col md:flex-row justify-between items-center mb-6 pb-3 border-b gap-4">
                     <h2 class="text-2xl font-bold text-gray-800 flex items-center">
-                        <i class="fas database text-emerald-700 ml-3"></i> سجل عهد ديوان الوزارة والأجهزة
+                        <i class="fas fa-database text-emerald-700 ml-3"></i> سجل عهد ديوان الوزارة والأجهزة
                     </h2>
                     <button id="export-csv" class="bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2.5 rounded-xl font-medium shadow transition flex items-center">
                         <i class="fas fa-file-excel ml-2"></i> تصدير البيانات إلى Excel / CSV
@@ -223,11 +234,11 @@
         </section>
     </div>
 
-    <!-- Script for Application Logic -->
+    <!-- Scripting for Excel Import & Application Logic -->
     <script>
         let assets = [];
         try {
-            const stored = localStorage.getItem('ministry_assets_v2');
+            const stored = localStorage.getItem('ministry_assets_v3');
             if (stored) assets = JSON.parse(stored);
         } catch (error) {
             assets = [];
@@ -255,6 +266,67 @@
         document.getElementById('dashboard-tab').addEventListener('click', () => switchTab('dashboard'));
         document.getElementById('records-tab').addEventListener('click', () => switchTab('records'));
 
+        // Handle Excel File Import
+        document.getElementById('import-excel-btn').addEventListener('click', function() {
+            const fileInput = document.getElementById('excel-file-input');
+            if (fileInput.files.length === 0) {
+                return showNotification('الرجاء اختيار ملف Excel أولاً!', 'error');
+            }
+
+            const file = fileInput.files[0];
+            const reader = new FileReader();
+
+            reader.onload = function(e) {
+                try {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    const firstSheetName = workbook.SheetNames[0];
+                    const worksheet = workbook.Sheets[firstSheetName];
+                    const jsonRows = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+
+                    if (jsonRows.length < 2) {
+                        return showNotification('الملف فارغ أو لا يحتوي على بيانات كافية!', 'error');
+                    }
+
+                    // Assume row 0 is headers, map data starting from row 1
+                    // Expected columns order: المبنى, الدور, الإدارة, القسم, اسم الموظف, نوع الجهاز, سيريال الجهاز, نوع الشاشة, سيريال الشاشة, نوع الطابعة, سيريال الطابعة, ملاحظات
+                    let importedCount = 0;
+                    for (let i = 1; i < jsonRows.length; i++) {
+                        let row = jsonRows[i];
+                        if (!row || row.length === 0) continue;
+
+                        let newAsset = {
+                            id: Date.now() + i,
+                            building: row[0] || 'ديوان الوزارة',
+                            floor: row[1] || 'الدور الأول',
+                            department: row[2] || 'غير محدد',
+                            section: row[3] || '',
+                            employee: row[4] || 'موظف',
+                            pcType: row[5] || '',
+                            pcSerial: row[6] || '',
+                            monitorType: row[7] || '',
+                            monitorSerial: row[8] || '',
+                            printerType: row[9] || '',
+                            printerSerial: row[10] || '',
+                            notes: row[11] || ''
+                        };
+                        assets.push(newAsset);
+                        importedCount++;
+                    }
+
+                    localStorage.setItem('ministry_assets_v3', JSON.stringify(assets));
+                    showNotification(`تم استيراد ${importedCount} سجلاً بنجاح!`, 'success');
+                    fileInput.value = '';
+                } catch (err) {
+                    console.error(err);
+                    showNotification('حدث خطأ أثناء قراءة الملف، تأكد من تنسيق الإكسيل', 'error');
+                }
+            };
+
+            reader.readAsArrayBuffer(file);
+        });
+
+        // Manual Form Submit
         document.getElementById('asset-form').addEventListener('submit', function(e) {
             e.preventDefault();
             
@@ -275,11 +347,10 @@
             };
 
             assets.push(newAsset);
-            localStorage.setItem('ministry_assets_v2', JSON.stringify(assets));
+            localStorage.setItem('ministry_assets_v3', JSON.stringify(assets));
             
             showNotification('تم تسجيل العهدة بنجاح!', 'success');
             
-            // Clear input fields for next entry (keeping building/floor for fast entry)
             document.getElementById('employee-name').value = '';
             document.getElementById('department').value = '';
             document.getElementById('section').value = '';
@@ -340,7 +411,7 @@
         window.deleteAsset = function(index) {
             if (confirm('هل أنت متأكد من رغبتك في حذف هذا السجل نهائياً؟')) {
                 assets.splice(index, 1);
-                localStorage.setItem('ministry_assets_v2', JSON.stringify(assets));
+                localStorage.setItem('ministry_assets_v3', JSON.stringify(assets));
                 renderTable();
                 updateDashboard();
                 showNotification('تم حذف السجل بنجاح', 'success');
@@ -350,7 +421,7 @@
         document.getElementById('clear-all').addEventListener('click', () => {
             if (confirm('تحذير خطير: سيتم مسح كافة سجلات الأصول نهائياً من الذاكرة المحلية. هل أنت متأكد؟')) {
                 assets = [];
-                localStorage.setItem('ministry_assets_v2', JSON.stringify(assets));
+                localStorage.setItem('ministry_assets_v3', JSON.stringify(assets));
                 renderTable();
                 updateDashboard();
                 showNotification('تم مسح جميع البيانات بنجاح', 'success');
