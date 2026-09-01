@@ -1,234 +1,105 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>لوحة التحكم - إدارة الأصول المالية</title>
-    <style>
-        :root {
-            --bg-color: #0f172a;
-            --card-bg: #1e293b;
-            --text-color: #ffffff;
-            --text-muted: #cbd5e1;
-            --accent-blue: #3b82f6;
-            --accent-hover: #2563eb;
-            --border-color: #334155;
-        }
+import streamlit as st
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
+# إعداد صفحة ستريمليت لتكون بعرض واسع واتجاه من اليمين لليسار (RTL)
+st.set_page_config(
+    page_title="لوحة التحكم - إدارة الأصول المالية",
+    layout="wide",
+    initial_sidebar_state="expanded"
+)
+
+# تخصيص التصميم والخطوط والألوان عبر CSS لتتناسب مع طلبك (خطوط بيضاء وأزرار تفاعلية)
+st.markdown("""
+    <style>
+        /* اتجاه الموقع من اليمين لليسار ودعم اللغة العربية */
+        html, body, [class*="css"] {
+            direction: rtl;
+            text-align: right;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
-        body {
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            display: flex;
-            height: 100vh;
-            overflow: hidden;
+        /* تكبير الخطوط وجعلها بيضاء واضحة */
+        h1, h2, h3, p, span, div, label {
+            color: #ffffff !important;
         }
 
-        /* القائمة الجانبية أو الشريط الثابت للأزرار */
-        .sidebar {
-            width: 260px;
-            background-color: var(--card-bg);
-            border-left: 1px solid var(--border-color);
-            display: flex;
-            flex-direction: column;
+        /* تنسيق الكروت والإحصائيات */
+        .metric-card {
+            background-color: #1e293b;
+            border: 1px solid #334155;
             padding: 20px;
-        }
-
-        .logo {
-            font-size: 20px;
-            font-weight: bold;
-            color: var(--text-color);
-            margin-bottom: 30px;
-            text-align: center;
-        }
-
-        .nav-links {
-            list-style: none;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        .nav-links li a {
-            display: block;
-            padding: 14px 18px;
-            color: var(--text-muted);
-            background-color: transparent;
-            text-decoration: none;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: 500;
-            transition: all 0.3s ease;
-            cursor: pointer;
-        }
-
-        .nav-links li a:hover {
-            background-color: rgba(59, 130, 246, 0.1);
-            color: var(--text-color);
-        }
-
-        /* التبويب النشط يتغير لونه إلى الأزرق ونصوص بيضاء واضحة */
-        .nav-links li a.active {
-            background-color: var(--accent-blue);
-            color: var(--text-color);
-            font-weight: bold;
-            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
-        }
-
-        /* المحتوى الرئيسي */
-        .main-content {
-            flex: 1;
-            padding: 30px;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 25px;
-        }
-
-        .header-title {
-            font-size: 24px;
-            font-weight: bold;
-            color: var(--text-color);
-        }
-
-        .cards-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 20px;
-        }
-
-        .card {
-            background-color: var(--card-bg);
-            border: 1px solid var(--border-color);
-            padding: 25px;
             border-radius: 12px;
             text-align: center;
-            transition: transform 0.2s ease, border-color 0.2s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s;
         }
-
-        .card h3 {
-            font-size: 18px;
-            color: var(--text-muted);
-            margin-bottom: 10px;
-        }
-
-        .card .number {
-            font-size: 28px;
-            font-weight: bold;
-            color: var(--text-color);
-        }
-
-        /* جعل بطاقة الإحصائيات قابلة للضغط للانتقال للصفحة */
-        .card.clickable-stat {
-            cursor: pointer;
-        }
-
-        .card.clickable-stat:hover {
-            border-color: var(--accent-blue);
+        .metric-card:hover {
+            border-color: #3b82f6;
             transform: translateY(-3px);
         }
-
-        .page-section {
-            display: none;
-        }
-
-        .page-section.active-section {
-            display: block;
-        }
     </style>
-</head>
-<body>
+""", unsafe_allow_html=True)
 
-    <!-- الشريط الجانبي الثابت للأزرار في جميع الصفحات -->
-    <div class="sidebar">
-        <div class="logo">إدارة الأصول المالية</div>
-        <ul class="nav-links">
-            <li><a href="#" class="nav-btn active" onclick="switchPage('home', this)">الرئيسية</a></li>
-            <li><a href="#" class="nav-btn" onclick="switchPage('statistics', this)">الإحصائيات</a></li>
-            <li><a href="#" class="nav-btn" onclick="switchPage('assets', this)">الأصول</a></li>
-            <li><a href="#" class="nav-btn" onclick="switchPage('reports', this)">التقارير</a></li>
-            <li><a href="#" class="nav-btn" onclick="switchPage('settings', this)">الإعدادات</a></li>
-        </ul>
-    </div>
+# إدارة حالة التنقل بين الصفحات في الجلسة (Session State)
+if 'current_page' not in st.session_state:
+    st.session_state.current_page = "الرئيسية"
 
-    <!-- محتوى الصفحات -->
-    <div class="main-content">
-        
-        <!-- صفحة الرئيسية -->
-        <div id="home" class="page-section active-section">
-            <h2 class="header-title" style="margin-bottom: 20px;">الرئيسية</h2>
-            <div class="cards-grid">
-                <!-- بطاقة الإحصائيات تضغط عليها تنقلك لصفحة الإحصائيات مباشرة -->
-                <div class="card clickable-stat" onclick="navigateToStat()">
-                    <h3>إجمالي الإحصائيات</h3>
-                    <div class="number">1,280</div>
-                </div>
-                <div class="card">
-                    <h3>الأصول النشطة</h3>
-                    <div class="number">940</div>
-                </div>
-                <div class="card">
-                    <h3>قيد الصيانة</h3>
-                    <div class="number">45</div>
-                </div>
+# القائمة الجانبية (الأزرار الثابتة في جميع الصفحات)
+st.sidebar.markdown("<h2 style='text-align: center;'>إدارة الأصول المالية</h2>", unsafe_allow_html=True)
+st.sidebar.markdown("---")
+
+# استخدام أزرار القائمة الجانبية للتنقل
+if st.sidebar.button("الرئيسية", use_container_width=True):
+    st.session_state.current_page = "الرئيسية"
+if st.sidebar.button("الإحصائيات", use_container_width=True):
+    st.session_state.current_page = "الإحصائيات"
+if st.sidebar.button("الأصول", use_container_width=True):
+    st.session_state.current_page = "الأصول"
+if st.sidebar.button("التقارير", use_container_width=True):
+    st.session_state.current_page = "التقارير"
+if st.sidebar.button("الإعدادات", use_container_width=True):
+    st.session_state.current_page = "الإعدادات"
+
+# عرض المحتوى بناءً على الصفحة المختار
+if st.session_state.current_page == "الرئيسية":
+    st.markdown("<h2>الرئيسية</h2>", unsafe_allow_html=True)
+    st.write("")
+    
+    col1, col2, col3 = st.columns(3)
+    
+    with col1:
+        # جعل بطاقة الإحصائيات قابلة للضغط للانتقال المباشر لصفحة الإحصائيات
+        if st.button("📊 إجمالي الإحصائيات\n\n 1,280", use_container_width=True):
+            st.session_state.current_page = "الإحصائيات"
+            st.rerun()
+            
+    with col2:
+        st.markdown("""
+            <div class="metric-card">
+                <h3>الأصول النشطة</h3>
+                <h2 style="color: #3b82f6 !important;">940</h2>
             </div>
-        </div>
+        """, unsafe_allow_html=True)
+        
+    with col3:
+        st.markdown("""
+            <div class="metric-card">
+                <h3>قيد الصيانة</h3>
+                <h2 style="color: #ef4444 !important;">45</h2>
+            </div>
+        """, unsafe_allow_html=True)
 
-        <!-- صفحة الإحصائيات -->
-        <div id="statistics" class="page-section">
-            <h2 class="header-title">صفحة الإحصائيات الشاملة</h2>
-            <p style="color: var(--text-muted); margin-top: 10px; font-size: 16px;">هنا يتم عرض كافة الأرقام والبيانات الإحصائية الخاصة بالنظام.</p>
-        </div>
+elif st.session_state.current_page == "الإحصائيات":
+    st.markdown("<h2>صفحة الإحصائيات الشاملة</h2>", unsafe_allow_html=True)
+    st.write("هنا يتم عرض كافة الأرقام والبيانات الإحصائية الخاصة بالنظام بشكل تفصيلي.")
 
-        <!-- صفحة الأصول -->
-        <div id="assets" class="page-section">
-            <h2 class="header-title">إدارة الأصول</h2>
-            <p style="color: var(--text-muted); margin-top: 10px; font-size: 16px;">قائمة الأصول والوحدات المتاحة.</p>
-        </div>
+elif st.session_state.current_page == "الأصول":
+    st.markdown("<h2>إدارة الأصول</h2>", unsafe_allow_html=True)
+    st.write("قائمة الأصول والوحدات المتاحة في النظام.")
 
-        <!-- صفحة التقارير -->
-        <div id="reports" class="page-section">
-            <h2 class="header-title">التقارير المالية</h2>
-            <p style="color: var(--text-muted); margin-top: 10px; font-size: 16px;">استخراج وعرض التقارير التفصيلية.</p>
-        </div>
+elif st.session_state.current_page == "Reports" or st.session_state.current_page == "التقارير":
+    st.markdown("<h2>التقارير المالية</h2>", unsafe_allow_html=True)
+    st.write("استخراج وعرض التقارير التفصيلية.")
 
-        <!-- صفحة الإعدادات -->
-        <div id="settings" class="page-section">
-            <h2 class="header-title">الإعدادات</h2>
-            <p style="color: var(--text-muted); margin-top: 10px; font-size: 16px;">تخصيص إعدادات النظام.</p>
-        </div>
-
-    </div>
-
-    <script>
-        // دالة التنقل بين التبويبات وتغيير اللون (Active State)
-        function switchPage(pageId, element) {
-            // إخفاء كل الصفحات
-            const sections = document.querySelectorAll('.page-section');
-            sections.forEach(sec => sec.classList.remove('active-section'));
-
-            // إظهار الصفحة المطلوبة
-            document.getElementById(pageId).classList.add('active-section');
-
-            // إزالة التحديد عن كل الأزرار
-            const buttons = document.querySelectorAll('.nav-btn');
-            buttons.buttonList = buttons.forEach(btn => btn.classList.remove('active'));
-
-            // إضافة التحديد للزر المضغط
-            element.classList.add('active');
-        }
-
-        // دالة الضغط على بطاقة الإحصائيات لتنقلك مباشرة لصفحة الإحصائيات وتفعل زرها
-        function navigateToStat() {
-            const statBtn = document.querySelector('.nav-links li:nth-child(2) a');
-            switchPage('statistics', statBtn);
-        }
-    </script>
-</body>
-</html>
+elif st.session_state.current_page == "الإعدادات":
+    st.markdown("<h2>الإعدادات</h2>", unsafe_allow_html=True)
+    st.write("تخصيص إعدادات النظام وتفضيلات الحساب.")
