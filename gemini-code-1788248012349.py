@@ -30,10 +30,11 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# تهيئة الذاكرة المؤقتة للبيانات
+# تهيئة الذاكرة المؤقتة للبيانات بالترتيب الجديد المطلوب
 if "assets_df" not in st.session_state:
   st.session_state.assets_df = pd.DataFrame(
       columns=[
+          "المنطقة",
           "المبنى",
           "الدور",
           "الإدارة",
@@ -51,7 +52,7 @@ if "assets_df" not in st.session_state:
       ]
   )
 
-# القائمة الجانبية للتنقل بين الصفحات والصفحات الخاصة للإحصائيات
+# القائمة الجانبية للتنقل بين الصفحات والإحصائيات
 st.sidebar.title("🧭 تنقل النظام")
 page = st.sidebar.radio(
     "اختر الصفحة:",
@@ -62,7 +63,7 @@ page = st.sidebar.radio(
         "📊 تفاصيل إحصائيات الموظفين",
         "💻 تفاصيل إحصائيات الأجهزة (PC)",
         "🖥️ تفاصيل إحصائيات الشاشات",
-        "🖨️ تفاصيل إحصائيات الطابعات (ملون / أبيض وأسود)",
+        "🖨️ تفاصيل إحصائيات الطابعات (ملون / أسود / ملصقات)",
         "⚠️ تفاصيل الأعطال التقنية",
     ],
 )
@@ -81,7 +82,7 @@ st.markdown(
 df = st.session_state.assets_df
 total_records = len(df)
 
-# --- 1. الصفحة الرئيسية واللوحة الشاملة ---
+# --- 1. الرئيسية واللوحة الشاملة ---
 if page == "🏠 الرئيسية واللوحة الشاملة":
   st.subheader("📊 لوحة المؤشرات والإحصائيات الشاملة")
 
@@ -113,15 +114,15 @@ if page == "🏠 الرئيسية واللوحة الشاملة":
     st.metric("الأجهزة المعطلة", total_faults)
 
   st.info(
-      "💡 يمكنك الانتقال إلى أي إحصائية تفصيلية عبر القائمة الجانبية للتحكم في"
-      " عرض البيانات ومعاينة التصنيفات والألوان."
+      "💡 يمكنك الانتقال إلى أي إحصائية تفصيلية عبر القائمة الجانبية لمعاينة"
+      " التصنيفات بدقة."
   )
 
   if total_records > 0:
     st.markdown("### 📋 معاينة سريعة لأحدث السجلات")
     st.dataframe(df.tail(5), use_container_width=True)
 
-# --- 2. صفحة تسجيل عهدة جديدة / رفع ملف ---
+# --- 2. تسجيل عهدة جديدة / رفع ملف ---
 elif page == "📥 تسجيل عهدة جديدة / رفع ملف":
   st.subheader("استيراد البيانات الضخمة عبر ملف Excel / CSV")
   uploaded_file = st.file_uploader(
@@ -147,15 +148,27 @@ elif page == "📥 تسجيل عهدة جديدة / رفع ملف":
       st.error(f"حدث خطأ أثناء قراءة الملف: {e}")
 
   st.markdown("---")
-  st.subheader(
-      "الإدخال اليدوي مع قوائم الاختيارات المباشرة (المبنى مكون من 11 دور)"
-  )
+  st.subheader("الإدخال اليدوي مع القوائم والمحددات الجديدة")
 
   with st.form("manual_form"):
     col1, col2, col3 = st.columns(3)
     with col1:
-      building = st.text_input("اسم المبنى", "المبنى الرئيسي")
+      # اختيار المنطقة (6 مناطق)
+      regions = [
+          "منطقة العاصمة التعليمية",
+          "منطقة حولي التعليمية",
+          "منطقة الفروانية التعليمية",
+          "منطقة الأحمدي التعليمية",
+          "منطقة الجهراء التعليمية",
+          "منطقة مبارك الكبير التعليمية",
+      ]
+      region = st.selectbox("المنطقة", regions)
     with col2:
+      building = st.text_input(
+          "اسم المبنى", placeholder="أدخل اسم أو رقم المبنى"
+      )
+    with col3:
+      # 11 دور + الدور الأرضي
       floor_options = [
           "الدور الأرضي",
           "الدور الأول",
@@ -171,53 +184,62 @@ elif page == "📥 تسجيل عهدة جديدة / رفع ملف":
           "الدور الحادي عشر",
       ]
       floor = st.selectbox("الدور", floor_options)
-    with col3:
-      department = st.text_input("الإدارة", placeholder="مثال: إدارة النظم الآلية")
 
-    col4, col5 = st.columns(2)
+    col4, col5, col6 = st.columns(3)
     with col4:
-      section = st.text_input("القسم", placeholder="التشغيل والدعم التقني")
+      department = st.text_input("الإدارة", placeholder="مثال: إدارة النظم الآلية")
     with col5:
+      section = st.text_input("القسم", placeholder="التشغيل والدعم التقني")
+    with col6:
       employee = st.text_input("اسم الموظف المسؤول")
 
-    st.markdown("#### تفاصيل العهدة والموديلات (اختيار من القوائم)")
-    col6, col7 = st.columns(2)
-    with col6:
-      pc_type = st.text_input(
-          "نوع وموديل الجهاز (PC)", placeholder="مثال: Dell OptiPlex 7090"
-      )
-
-      monitor_options = [
+    st.markdown(
+        "#### تفاصيل الأجهزة، الشاشات، والطابعات (حسب الخيارات المحددة)"
+    )
+    col7, col8 = st.columns(2)
+    with col7:
+      # أنواع الأجهزة المطلوبة
+      pc_options = [
           "غير موجود",
-          "شاشة 19 بوصة",
-          "شاشة 22 بوصة",
-          "شاشة 24 بوصة",
-          "شاشة 27 بوصة",
-          "أخرى",
+          "Lenovo M70q (Type B)",
+          "Lenovo M70q (Type A)",
+          "Lenovo M90t (Type C)",
+          "laptop",
       ]
-      monitor_type = st.selectbox("مقاس / نوع الشاشة", monitor_options)
+      pc_type = st.selectbox("نوع الجهاز (PC)", pc_options)
 
+      # الشاشات (تظهر فقط إذا لم يكن الجهاز Laptop)
+      if pc_type != "laptop":
+        monitor_options = [
+            "غير موجود",
+            "Lenovo 24 inch",
+            "Lenovo 27 inch",
+        ]
+        monitor_type = st.selectbox("مقاس / نوع الشاشة", monitor_options)
+      else:
+        monitor_type = "لابتوب (شاشة مدمجة)"
+        st.info("تم تخطي اختيار الشاشة لأن الجهاز Laptop.")
+
+      # موديلات الطابعات المطلوبة
       printer_options = [
           "غير موجود",
-          "HP LaserJet Pro (أبيض وأسود)",
-          "HP Color LaserJet (ملون)",
-          "Canon imageRUNNER (أبيض وأسود)",
-          "Brother HL Series (أبيض وأسود)",
-          "Epson EcoTank (ملون)",
-          "أخرى",
+          "Canon MF463dw (Black)",
+          "Canon MF754Cdw (Color)",
+          "Label Printer",
       ]
       printer_model = st.selectbox("موديل الطابعة", printer_options)
 
-      if "ملون" in printer_model:
+      # تحديد نوع الطباعة تلقائياً بناءً على اختيار الطابعة
+      if printer_model == "Canon MF463dw (Black)":
+        printer_color_type = "أسود وأبيض"
+      elif printer_model == "Canon MF754Cdw (Color)":
         printer_color_type = "ملون"
-      elif "أبيض وأسود" in printer_model:
-        printer_color_type = "أبيض وأسود"
+      elif printer_model == "Label Printer":
+        printer_color_type = "ملصقات"
       else:
-        printer_color_type = st.selectbox(
-            "نوع طباعة الطابعة", ["غير محدد", "أبيض وأسود", "ملون"]
-        )
+        printer_color_type = "غير محدد"
 
-    with col7:
+    with col8:
       pc_serial = st.text_input("سيريال نمبر الجهاز (PC S/N)")
       monitor_serial = st.text_input("سيريال نمبر الشاشة")
       printer_serial = st.text_input("سيريال نمبر الطابعة")
@@ -237,6 +259,7 @@ elif page == "📥 تسجيل عهدة جديدة / رفع ملف":
         st.warning("الرجاء إدخال اسم الموظف وإدارة العمل على الأقل.")
       else:
         new_row = {
+            "المنطقة": region,
             "المبنى": building,
             "الدور": floor,
             "الإدارة": department,
@@ -264,10 +287,11 @@ elif page == "📥 تسجيل عهدة جديدة / رفع ملف":
 
 # --- 3. سجل الأصول والبحث المتقدم ---
 elif page == "📋 سجل الأصول والبحث المتقدم":
-  st.subheader("سجل الأصول والبحث الفوري")
+  st.subheader("سجل الأصول والبحث الفوري (مرتب حسب المنطقة والمبنى والدور)")
   if len(df) > 0:
     search_query = st.text_input(
-        "🔍 ابحث في السجلات (بالاسم، السيريال، الإدارة، الدور، أو العطل)...", ""
+        "🔍 ابحث في السجلات (بالمنطقة، الاسم، السيريال، الإدارة، أو الدور)...",
+        "",
     )
     if search_query:
       mask = df.astype(str).apply(
@@ -282,7 +306,6 @@ elif page == "📋 سجل الأصول والبحث المتقدم":
     col_btn1, col_btn2 = st.columns(2)
     with col_btn1:
       buffer = io.BytesIO()
-      # تم التعديل هنا لاستخدام محرك openpyxl المدمج لتجنب خطأ غياب مكتبة xlsxwriter
       with pd.ExcelWriter(buffer, engine="openpyxl") as writer:
         df.to_excel(writer, sheet_name="الأصول", index=False)
       buffer.seek(0)
@@ -299,63 +322,64 @@ elif page == "📋 سجل الأصول والبحث المتقدم":
   else:
     st.info("لا توجد بيانات مسجلة حتى الآن.")
 
-# --- 4. صفحة تفاصيل إحصائيات الموظفين ---
+# --- 4. تفاصيل إحصائيات الموظفين ---
 elif page == "📊 تفاصيل إحصائيات الموظفين":
-  st.subheader("📊 الصفحة الخاصة بإحصائيات وتوزيع الموظفين والأقسام")
+  st.subheader("📊 إحصائيات توزيع الموظفين حسب المناطق والمباني")
   if total_records > 0:
     col1, col2 = st.columns(2)
     with col1:
       st.metric("إجمالي الموظفين المسجلين", total_records)
     with col2:
-      st.metric("عدد الإدارات المختلفة", df["الإدارة"].nunique())
+      st.metric("عدد المناطق المغطاة", df["المنطقة"].nunique())
 
-    st.markdown("### توزيع الموظفين حسب الأدوار في المبنى:")
-    floor_counts = df["الدور"].value_counts().reset_index()
-    floor_counts.columns = ["الدور", "عدد الموظفين"]
-    st.dataframe(floor_counts, use_container_width=True)
+    st.markdown("### التوزيع حسب المنطقة:")
+    region_counts = df["المنطقة"].value_counts().reset_index()
+    region_counts.columns = ["المنطقة", "عدد السجلات"]
+    st.dataframe(region_counts, use_container_width=True)
   else:
     st.info("لا توجد بيانات كافية لعرض الإحصائيات.")
 
-# --- 5. صفحة تفاصيل إحصائيات الأجهزة (PC) ---
+# --- 5. تفاصيل إحصائيات الأجهزة (PC) ---
 elif page == "💻 تفاصيل إحصائيات الأجهزة (PC)":
-  st.subheader("💻 الصفحة الخاصة بإحصائيات أجهزة الحاسب الآلي (PC)")
+  st.subheader("💻 تفصيل أجهزة الحاسب الآلي واللابتوب")
   if total_records > 0:
-    pcs_df = df[df["نوع الجهاز (PC)"].astype(bool)]
-    st.metric("إجمالي أجهزة الحاسب الآلي", len(pcs_df))
+    pcs_df = df[
+        (df["نوع الجهاز (PC)"].astype(bool))
+        & (df["نوع الجهاز (PC)"] != "غير موجود")
+    ]
+    st.metric("إجمالي الأجهزة المسجلة", len(pcs_df))
 
-    st.markdown("### تفاصيل موديلات الأجهزة المسجلة:")
     if len(pcs_df) > 0:
       pc_counts = pcs_df["نوع الجهاز (PC)"].value_counts().reset_index()
-      pc_counts.columns = ["موديل الجهاز", "العدد"]
+      pc_counts.columns = ["نوع الجهاز", "العدد"]
       st.dataframe(pc_counts, use_container_width=True)
     else:
-      st.write("لا توجد أجهزة حاسب مسجلة.")
+      st.write("لا توجد أجهزة مسجلة.")
   else:
     st.info("لا توجد بيانات مسجلة.")
 
-# --- 6. صفحة تفاصيل إحصائيات الشاشات ---
+# --- 6. تفاصيل إحصائيات الشاشات ---
 elif page == "🖥️ تفاصيل إحصائيات الشاشات":
-  st.subheader("🖥️ الصفحة الخاصة بإحصائيات الشاشات ومقاساتها")
+  st.subheader("🖥️ تفصيل الشاشات حسب المقاسات")
   if total_records > 0:
     mon_df = df[
         (df["مقاس/نوع الشاشة"].astype(bool))
-        & (df["مقاس/نوع الشاشة"] != "غير موجود")
+        & (~df["مقاس/نوع الشاشة"].isin(["غير موجود", "لابتوب (شاشة مدمجة)"]))
     ]
-    st.metric("إجمالي الشاشات الفعالة", len(mon_df))
+    st.metric("إجمالي الشاشات الخارجية", len(mon_df))
 
-    st.markdown("### توزيع الشاشات حسب المقاسات:")
     if len(mon_df) > 0:
       mon_counts = mon_df["مقاس/نوع الشاشة"].value_counts().reset_index()
       mon_counts.columns = ["مقاس الشاشة", "العدد"]
       st.dataframe(mon_counts, use_container_width=True)
     else:
-      st.write("لا توجد شاشات مسجلة.")
+      st.write("لا توجد شاشات خارجية مسجلة.")
   else:
     st.info("لا توجد بيانات مسجلة.")
 
-# --- 7. صفحة تفاصيل إحصائيات الطابعات (ملون / أبيض وأسود) ---
-elif page == "🖨️ تفاصيل إحصائيات الطابعات (ملون / أبيض وأسود)":
-  st.subheader("🖨️ الصفحة الخاصة بإحصائيات الطابعات وتصنيفاتها")
+# --- 7. تفاصيل إحصائيات الطابعات ---
+elif page == "🖨️ تفاصيل إحصائيات الطابعات (ملون / أسود / ملصقات)":
+  st.subheader("🖨️ التقرير التفصيلي للطابعات (ملون، أسود وأبيض، وملصقات)")
   if total_records > 0:
     print_df = df[
         (df["موديل الطابعة"].astype(bool))
@@ -363,46 +387,42 @@ elif page == "🖨️ تفاصيل إحصائيات الطابعات (ملون /
     ]
 
     total_p = len(print_df)
-    color_p = len(
-        print_df[print_df["نوع طباعة الطابعة"].str.contains("ملون", na=False)]
-    )
-    bw_p = len(
-        print_df[
-            print_df["نوع طباعة الطابعة"].str.contains("أبيض وأسود", na=False)
-        ]
-    )
+    color_p = len(print_df[print_df["نوع طباعة الطابعة"] == "ملون"])
+    bw_p = len(print_df[print_df["نوع طباعة الطابعة"] == "أسود وأبيض"])
+    label_p = len(print_df[print_df["نوع طباعة الطابعة"] == "ملصقات"])
 
-    c1, c2, c3 = st.columns(3)
+    c1, c2, c3, c4 = st.columns(4)
     c1.metric("إجمالي الطابعات", total_p)
-    c2.metric("🖨️ طابعات أبيض وأسود", bw_p)
-    c3.metric("🎨 طابعات ملونة", color_p)
+    c2.metric("🖨️ أسود وأبيض", bw_p)
+    c3.metric("🎨 ملون", color_p)
+    c4.metric("🏷️ ملصقات (Label)", label_p)
 
-    st.markdown("### تفاصيل موديلات الطابعات وتصنيفاتها:")
+    st.markdown("### تفصيل الموديلات والأنواع:", unsafe_allow_html=True)
     if total_p > 0:
       p_counts = (
           print_df[["موديل الطابعة", "نوع طباعة الطابعة"]]
           .value_counts()
           .reset_index()
       )
-      p_counts.columns = ["موديل الطابعة", "نوع الطباعة (ملون/أسود)", "العدد"]
+      p_counts.columns = ["موديل الطابعة", "نوع الطباعة", "العدد"]
       st.dataframe(p_counts, use_container_width=True)
     else:
       st.write("لا توجد طابعات مسجلة.")
   else:
     st.info("لا توجد بيانات مسجلة.")
 
-# --- 8. صفحة تفاصيل الأعطال التقنية ---
+# --- 8. تفاصيل الأعطال التقنية ---
 elif page == "⚠️ تفاصيل الأعطال التقنية":
-  st.subheader("⚠️ الصفحة الخاصة بمتابعة الأعطال التقنية والأجهزة المعطلة")
+  st.subheader("⚠️ متابعة الأعطال التقنية والأجهزة المعطلة")
   if total_records > 0:
     faults_df = df[df["حالة العطل"] != "سليم"]
     st.metric("إجمالي الأجهزة التي بها أعطال", len(faults_df))
 
     if len(faults_df) > 0:
-      st.markdown("### قائمة الأجهزة المعطلة وتفاصيل الأعطال:")
       st.dataframe(
           faults_df[
               [
+                  "المنطقة",
                   "المبنى",
                   "الدور",
                   "الإدارة",
