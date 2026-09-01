@@ -7,7 +7,7 @@ st.set_page_config(
     page_title="نظام حصر الأصول والدعم التقني", page_icon="💻", layout="wide"
 )
 
-# تخصيص التصميم الاحترافي (تنسيق RTL + تغيير اللون العام إلى الذهبي الفاخر + إبراز الأزرار الجانبية بوضوح تام)
+# تخصيص التصميم الاحترافي (تنسيق RTL مع محاذاة الحقول من اليمين لليسار، لون عام ذهبي فاتح، وأزرار جانبية بيضاء واضحة تماماً)
 st.markdown(
     """
     <style>
@@ -15,44 +15,60 @@ st.markdown(
         direction: rtl;
         text-align: right;
         font-family: 'Tajawal', sans-serif;
-        background-color: #fdfbf7;
+        background-color: #fffbf0;
     }
     
-    /* تصميم القائمة الجانبية باللون الذهبي الداكن الفاخر وتأمين وضوح النص الأبيض */
+    /* محاذاة جميع حقول الإدخال، القوائم المنسدلة، والنصوص من اليمين إلى اليسار بشكل كامل */
+    .stTextInput input, .stSelectbox select, .stMultiSelect div, textarea, 
+    [data-baseweb="select"] span, [data-baseweb="input"] input, div[data-baseweb="base-input"] {
+        direction: rtl !important;
+        text-align: right !important;
+    }
+    
+    /* ضمان اتجاه القوائم المنسدلة والعناصر الفرعية من اليمين لليسار */
+    .stSelectbox div[data-baseweb="select"] {
+        direction: rtl !important;
+        text-align: right !important;
+    }
+
+    /* تصميم القائمة الجانبية باللون الذهبي الفاتح الأنيق وتوضيح النصوص والأزرار الجانبية باللون الأبيض */
     [data-testid="stSidebar"] {
-        background: linear-gradient(180deg, #78350f 0%, #92400e 50%, #b45309 100%);
+        background: linear-gradient(180deg, #d97706 0%, #b45309 50%, #92400e 100%);
         color: #ffffff;
     }
     [data-testid="stSidebar"] .stRadio label {
         color: #ffffff !important;
-        font-weight: 600;
+        font-weight: 700;
         font-size: 15px;
         padding: 10px 14px;
         border-radius: 8px;
         transition: all 0.2s ease-in-out;
         margin-bottom: 4px;
-        background-color: rgba(0, 0, 0, 0.15);
+        background-color: rgba(255, 255, 255, 0.15);
     }
     [data-testid="stSidebar"] .stRadio label:hover {
-        background-color: rgba(255, 255, 255, 0.25);
+        background-color: rgba(255, 255, 255, 0.3);
         cursor: pointer;
     }
     [data-testid="stSidebar"] hr {
-        border-color: rgba(255, 255, 255, 0.3);
+        border-color: rgba(255, 255, 255, 0.4);
     }
+    
+    /* تخصيص الأزرار داخل الشريط الجانبي لتكون باللون الأبيض الواضح */
     [data-testid="stSidebar"] .stButton>button {
-        background-color: rgba(239, 68, 68, 0.9);
-        color: white;
+        background-color: #ffffff !important;
+        color: #92400e !important;
         border: none;
         border-radius: 8px;
         font-weight: bold;
         transition: all 0.2s;
     }
     [data-testid="stSidebar"] .stButton>button:hover {
-        background-color: #dc2626;
+        background-color: #fef3c7 !important;
+        color: #78350f !important;
     }
 
-    /* تحسين الأزرار العامة في التطبيق بلون منسجم مع الهوية الذهبية */
+    /* تحسين الأزرار العامة في التطبيق بلون منسجم مع الهوية الذهبية الفاتحة */
     .stButton>button {
         border-radius: 8px;
         font-weight: bold;
@@ -82,9 +98,9 @@ st.markdown(
         display: none !important;
     }
 
-    /* تصميم بطاقات الإحصائيات التفاعلية بدرجات الذهبي الفاخر */
+    /* تصميم بطاقات الإحصائيات التفاعلية بدرجات الذهبي الفاتح الأنيق */
     .metric-card {
-        background: linear-gradient(135deg, #b45309 0%, #d97706 100%);
+        background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
         padding: 20px;
         border-radius: 12px;
         color: white;
@@ -97,7 +113,7 @@ st.markdown(
     .metric-card:hover {
         transform: translateY(-4px);
         box-shadow: 0 8px 15px rgba(0,0,0,0.15);
-        background: linear-gradient(135deg, #92400e 0%, #b45309 100%);
+        background: linear-gradient(135deg, #d97706 0%, #b45309 100%);
     }
     .metric-card h3 {
         margin: 0;
@@ -226,7 +242,7 @@ if "assets_df" not in st.session_state:
 if not st.session_state.logged_in:
   st.markdown(
       """
-        <div style="background: linear-gradient(135deg, #78350f, #b45309); padding: 40px; border-radius: 16px; color: white; text-align: center; margin-bottom: 30px; box-shadow: 0 10px 25px rgba(0,0,0,0.1);">
+        <div style="background: linear-gradient(135deg, #f59e0b, #d97706); padding: 40px; border-radius: 16px; color: white; text-align: center; margin-bottom: 30px; box-shadow: 0 10px 25px rgba(0,0,0,0.1);">
             <h1 style="margin: 0; font-size: 32px;">نظام حصر الأصول والدعم التقني</h1>
             <p style="margin: 10px 0 0 0; opacity: 0.95; font-size: 18px;">وزارة التربية - إدارة النظم الآلية والبنية التحتية</p>
         </div>
@@ -311,7 +327,7 @@ if st.sidebar.button("🚪 تسجيل الخروج"):
 # العنوان الثابت
 st.markdown(
     """
-    <div style="background: linear-gradient(135deg, #78350f, #b45309); padding: 20px; border-radius: 12px; color: white; text-align: center; margin-bottom: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
+    <div style="background: linear-gradient(135deg, #f59e0b, #d97706); padding: 20px; border-radius: 12px; color: white; text-align: center; margin-bottom: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
         <h1 style="margin: 0; font-size: 26px;">نظام حصر الأصول والدعم التقني</h1>
         <p style="margin: 5px 0 0 0; opacity: 0.95; font-size: 14px;">وزارة التربية - إدارة النظم الآلية والبنية التحتية (قسم التشغيل والدعم التقني)</p>
     </div>
@@ -409,7 +425,7 @@ if page == "🏠 الرئيسية وإضافة العهد":
   with dcol5:
     st.markdown(
         f"""
-        <div class="metric-card" style="background: linear-gradient(135deg, #991b1b 0%, #b91c1c 100%);">
+        <div class="metric-card" style="background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);">
             <h3>الأجهزة المعطلة</h3>
             <h2>{total_faults}</h2>
         </div>
