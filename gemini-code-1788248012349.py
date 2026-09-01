@@ -7,7 +7,7 @@ st.set_page_config(
     page_title="نظام حصر الأصول والدعم التقني", page_icon="💻", layout="wide"
 )
 
-# تخصيص التصميم (تنسيق RTL + تأثيرات حركية وتفاعلية للبطاقات وإخفاء نصوص الـ submit)
+# تخصيص التصميم (تنسيق RTL + إخفاء نص الإدخال التلقائي + تأثيرات البطاقات)
 st.markdown(
     """
     <style>
@@ -25,11 +25,9 @@ st.markdown(
         direction: rtl;
         text-align: right;
     }
-    /* إاخفاء نص Press Enter to submit من جميع الحقول النصية */
     [data-testid="InputInstructions"] {
         display: none !important;
     }
-    /* تصميم بطاقات الإحصائيات التفاعلية */
     .metric-card {
         background: linear-gradient(135deg, #065f46 0%, #0f766e 100%);
         padding: 20px;
@@ -77,7 +75,7 @@ if "logged_in" not in st.session_state:
   st.session_state.current_user = ""
   st.session_state.user_role = ""
 
-# 3. تهيئة البيانات التجريبية للعهد وإضافة "مبنى الوزارة الرئيسي"
+# 3. تهيئة البيانات التجريبية الشاملة (للعهد، الموظفين، وأنواع الأجهزة المختلفة)
 if "assets_df" not in st.session_state:
   st.session_state.assets_df = pd.DataFrame(
       [
@@ -114,6 +112,40 @@ if "assets_df" not in st.session_state:
               "سيريال الطابعة": "PRN-332145",
               "حالة العطل": "بطء في التشغيل يحتاج فحص الباور",
               "ملاحظات": "جهاز خاص بغرفة الإدارة",
+          },
+          {
+              "المنطقة": "منطقة حولي التعليمية",
+              "المبنى": "مدرسة ابن خلدون المتوسطة",
+              "الدور": "الدور الثاني",
+              "الإدارة": "الشؤون التعليمية",
+              "القسم": "مختبر الحاسب الآلي",
+              "اسم الموظف": "خالد الشمري",
+              "نوع الجهاز (PC)": "laptop",
+              "سيريال الجهاز": "LAP-112233",
+              "مقاس/نوع الشاشة": "لابتوب (شاشة مدمجة)",
+              "سيريال الشاشة": "N/A",
+              "موديل الطابعة": "Label Printer",
+              "نوع طباعة الطابعة": "ملصقات",
+              "سيريال الطابعة": "PRN-998877",
+              "حالة العطل": "سليم",
+              "ملاحظات": "جهاز محمول خاص بالتنقل والمتابعة",
+          },
+          {
+              "المنطقة": "منطقة الفروانية التعليمية",
+              "المبنى": "مدرسة العارضية الابتدائية",
+              "الدور": "الدور الأرضي",
+              "الإدارة": "السكرتارية",
+              "القسم": "قسم الإدارة",
+              "اسم الموظف": "فهد المطيري",
+              "نوع الجهاز (PC)": "Lenovo M70q (Type B)",
+              "سيريال الجهاز": "PC-665544",
+              "مقاس/نوع الشاشة": "Lenovo 24 inch",
+              "سيريال الشاشة": "MON-112233",
+              "موديل الطابعة": "غير موجود",
+              "نوع طباعة الطابعة": "",
+              "سيريال الطابعة": "",
+              "حالة العطل": "لا يعمل - مشكلة في اللوحة الأم",
+              "ملاحظات": "بانتظار قطع الغيار للصيانة",
           },
       ],
       columns=[
@@ -190,7 +222,7 @@ nav_options = [
     "💻 تفاصيل إحصائيات الأجهزة (PC)",
     "🖥️ تفاصيل إحصائيات الشاشات",
     "🖨️ تفاصيل إحصائيات الطابعات",
-    "⚠️ تفاصيل الأعطال التقنية",
+    "⚠️ تفاصيل الأعطال التقنية والصيانة",
     "👥 إدارة المستخدمين",
 ]
 
@@ -321,7 +353,7 @@ if page == "🏠 الرئيسية وإضافة العهد":
         unsafe_allow_html=True,
     )
     if st.button("عرض تقرير الأعطال", key="btn_flt"):
-      st.session_state.current_page = "⚠️ تفاصيل الأعطال التقنية"
+      st.session_state.current_page = "⚠️ تفاصيل الأعطال التقنية والصيانة"
       st.rerun()
 
   st.markdown("---")
@@ -420,6 +452,7 @@ if page == "🏠 الرئيسية وإضافة العهد":
           "Canon MF463dw (Black)",
           "Canon MF754Cdw (Color)",
           "Label Printer",
+          "غير موجود",
       ]
       printer_model = st.selectbox("موديل الطابعة", printer_options)
 
@@ -475,11 +508,11 @@ if page == "🏠 الرئيسية وإضافة العهد":
         st.success("تم تسجيل العهدة بنجاح!")
         st.rerun()
 
-# --- 2. سجل الأصول والبحث المتقدم ---
+# --- 2. سجل الأصول والبحث المتقدم وإمكانية الحذف ---
 elif page == "📋 سجل الأصول والبحث المتقدم":
-  st.subheader("📋 سجل الأصول والبحث الفوري")
+  st.subheader("📋 سجل الأصول، إدارة الموظفين، والبحث المتقدم")
   if len(df) > 0:
-    search_query = st.text_input("🔍 ابحث في السجلات...", value="")
+    search_query = st.text_input("🔍 ابحث في السجلات (بالاسم، السيريال، الإدارة...):", value="")
     if search_query:
       mask = df.astype(str).apply(
           lambda x: x.str.contains(search_query, case=False, na=False)
@@ -490,6 +523,26 @@ elif page == "📋 سجل الأصول والبحث المتقدم":
 
     st.dataframe(filtered_df, use_container_width=True)
 
+    st.markdown("---")
+    st.markdown("#### 🗑️ حذف عهدة أو موظف من السجلات")
+    emp_list_to_delete = df["اسم الموظف"].tolist()
+    selected_emp_to_delete = st.selectbox(
+        "اختر الموظف المراد حذف سجله وعهدته:", [""] + emp_list_to_delete
+    )
+
+    if st.button("حذف السجل المحدد"):
+      if selected_emp_to_delete:
+        st.session_state.assets_df = df[
+            df["اسم الموظف"] != selected_emp_to_delete
+        ].reset_index(drop=True)
+        st.success(
+            f"تم حذف سجل الموظف ({selected_emp_to_delete}) والعهد الخاصة به بنجاح!"
+        )
+        st.rerun()
+      else:
+        st.warning("الرجاء اختيار موظف للحذف.")
+
+    st.markdown("---")
     col_btn1, col_btn2 = st.columns(2)
     with col_btn1:
       buffer = io.BytesIO()
@@ -523,6 +576,12 @@ elif page == "📊 تفاصيل إحصائيات الموظفين":
     region_counts = df["المنطقة"].value_counts().reset_index()
     region_counts.columns = ["المنطقة", "عدد السجلات"]
     st.dataframe(region_counts, use_container_width=True)
+
+    st.markdown("### قائمة الموظفين التفصيلية:")
+    st.dataframe(
+        df[["اسم الموظف", "المنطقة", "المبنى", "الإدارة", "القسم"]],
+        use_container_width=True,
+    )
   else:
     st.info("لا توجد بيانات كافية لعرض الإحصائيات.")
 
@@ -540,6 +599,20 @@ elif page == "💻 تفاصيل إحصائيات الأجهزة (PC)":
       pc_counts = pcs_df["نوع الجهاز (PC)"].value_counts().reset_index()
       pc_counts.columns = ["نوع الجهاز", "العدد"]
       st.dataframe(pc_counts, use_container_width=True)
+
+      st.markdown("### تفاصيل أجهزة الموظفين والسيريال:")
+      st.dataframe(
+          pcs_df[
+              [
+                  "اسم الموظف",
+                  "المنطقة",
+                  "الإدارة",
+                  "نوع الجهاز (PC)",
+                  "سيريال الجهاز",
+              ]
+          ],
+          use_container_width=True,
+      )
     else:
       st.write("لا توجد أجهزة مسجلة.")
   else:
@@ -547,20 +620,34 @@ elif page == "💻 تفاصيل إحصائيات الأجهزة (PC)":
 
 # --- 5. تفاصيل إحصائيات الشاشات ---
 elif page == "🖥️ تفاصيل إحصائيات الشاشات":
-  st.subheader("🖥️ تفصيل الشاشات حسب المقاسات")
+  st.subheader("🖥️ تفصيل الشاشات حسب المقاسات والأنواع")
   if total_records > 0:
     mon_df = df[
         (df["مقاس/نوع الشاشة"].astype(bool))
-        & (~df["مقاس/نوع الشاشة"].isin(["غير موجود", "لابتوب (شاشة مدمجة)"]))
+        & (~df["مقاس/نوع الشاشة"].isin(["غير موجود"]))
     ]
-    st.metric("إجمالي الشاشات الخارجية", len(mon_df))
+    st.metric("إجمالي الشاشات المسجلة", len(mon_df))
 
     if len(mon_df) > 0:
       mon_counts = mon_df["مقاس/نوع الشاشة"].value_counts().reset_index()
-      mon_counts.columns = ["مقاس الشاشة", "العدد"]
+      mon_counts.columns = ["مقاس/نوع الشاشة", "العدد"]
       st.dataframe(mon_counts, use_container_width=True)
+
+      st.markdown("### تفاصيل الشاشات والسيريال المرتبط بها:")
+      st.dataframe(
+          mon_df[
+              [
+                  "اسم الموظف",
+                  "المنطقة",
+                  "المبنى",
+                  "مقاس/نوع الشاشة",
+                  "سيريال الشاشة",
+              ]
+          ],
+          use_container_width=True,
+      )
     else:
-      st.write("لا توجد شاشات خارجية مسجلة.")
+      st.write("لا توجد شاشات مسجلة.")
   else:
     st.info("لا توجد بيانات مسجلة.")
 
@@ -593,35 +680,74 @@ elif page == "🖨️ تفاصيل إحصائيات الطابعات":
       )
       p_counts.columns = ["موديل الطابعة", "نوع الطباعة", "العدد"]
       st.dataframe(p_counts, use_container_width=True)
+
+      st.markdown("### تفاصيل عهد الطابعات للموظفين:")
+      st.dataframe(
+          print_df[
+              [
+                  "اسم الموظف",
+                  "المنطقة",
+                  "المبنى",
+                  "موديل الطابعة",
+                  "نوع طباعة الطابعة",
+                  "سيريال الطابعة",
+              ]
+          ],
+          use_container_width=True,
+      )
     else:
       st.write("لا توجد طابعات مسجلة.")
   else:
     st.info("لا توجد بيانات مسجلة.")
 
-# --- 7. تفاصيل الأعطال التقنية ---
-elif page == "⚠️ تفاصيل الأعطال التقنية":
-  st.subheader("⚠️ متابعة الأعطال التقنية والأجهزة المعطلة")
+# --- 7. تفاصيل الأعطال التقنية والصيانة ---
+elif page == "⚠️ تفاصيل الأعطال التقنية والصيانة":
+  st.subheader("⚠️ متابعة الأعطال التقنية وتحديث حالة الأجهزة إلى (عمل / سليم)")
   if total_records > 0:
     faults_df = df[df["حالة العطل"] != "سليم"]
-    st.metric("إجمالي الأجهزة التي بها أعطال", len(faults_df))
+    st.metric("إجمالي الأجهزة التي بها أعطال أو قيد الصيانة", len(faults_df))
 
     if len(faults_df) > 0:
+      st.markdown("#### الأجهزة المعطلة حالياً:")
       st.dataframe(
           faults_df[
               [
                   "المنطقة",
                   "المبنى",
-                  "الدور",
                   "الإدارة",
                   "اسم الموظف",
+                  "نوع الجهاز (PC)",
+                  "سيريال الجهاز",
                   "حالة العطل",
                   "ملاحظات",
               ]
           ],
           use_container_width=True,
       )
+
+      st.markdown("---")
+      st.markdown("#### 🛠️ تحديث حالة جهاز معطل وإرجاعه إلى (يعمل / سليم)")
+      
+      # اختيار الجهاز المعطل بواسطة سيريال الجهاز أو الموظف
+      faulty_serials = faults_df["سيريال الجهاز"].tolist()
+      selected_serial_to_fix = st.selectbox(
+          "اختر سيريال الجهاز الذي تم إصلاحه:", [""] + faulty_serials
+      )
+
+      if st.button("تحديث الحالة إلى (يعمل وجاهز)"):
+        if selected_serial_to_fix:
+          # تحديث حالة العطل إلى "سليم" في الـ DataFrame الأساسي
+          st.session_state.assets_df.loc[
+              st.session_state.assets_df["سيريال الجهاز"] == selected_serial_to_fix,
+              "حالة العطل"
+          ] = "سليم"
+          st.success(f"تم تحديث الجهاز ذو السيريال ({selected_serial_to_fix}) إلى حالة (سليم ويعمل) بنجاح!")
+          st.rerun()
+        else:
+          st.warning("الرجاء اختيار جهاز للتحديث.")
+
     else:
-      st.success("ممتاز! لا توجد أي أعطال مسجلة حالياً، كافة الأجهزة سليمة.")
+      st.success("ممتاز! لا توجد أي أعطال مسجلة حالياً، كافة الأجهزة سليمة وتعمل بكفاءة.")
   else:
     st.info("لا توجد بيانات مسجلة.")
 
