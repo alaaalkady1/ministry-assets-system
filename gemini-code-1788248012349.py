@@ -7,7 +7,7 @@ st.set_page_config(
     page_title="نظام حصر الأصول والدعم التقني", page_icon="💻", layout="wide"
 )
 
-# تخصيص التصميم (تنسيق RTL + إخفاء نص الإدخال التلقائي + تأثيرات البطاقات)
+# تخصيص التصميم الاحترافي (تنسيق RTL + تحسين واجهة القائمة الجانبية والأزرار والبطاقات)
 st.markdown(
     """
     <style>
@@ -15,50 +15,99 @@ st.markdown(
         direction: rtl;
         text-align: right;
         font-family: 'Tajawal', sans-serif;
+        background-color: #f8fafc;
     }
-    .stButton>button {
-        width: 100%;
-        border-radius: 10px;
+    
+    /* تحسين تصميم القائمة الجانبية بالكامل */
+    [data-testid="stSidebar"] {
+        background: linear-gradient(180deg, #065f46 0%, #0f766e 100%);
+        color: white;
+    }
+    [data-testid="stSidebar"] .stRadio label {
+        color: white !important;
+        font-weight: 500;
+        font-size: 15px;
+        padding: 8px 12px;
+        border-radius: 8px;
+        transition: all 0.2s ease-in-out;
+        margin-bottom: 4px;
+    }
+    [data-testid="stSidebar"] .stRadio label:hover {
+        background-color: rgba(255, 255, 255, 0.15);
+        cursor: pointer;
+    }
+    [data-testid="stSidebar"] hr {
+        border-color: rgba(255, 255, 255, 0.2);
+    }
+    [data-testid="stSidebar"] .stButton>button {
+        background-color: rgba(239, 68, 68, 0.9);
+        color: white;
+        border: none;
+        border-radius: 8px;
         font-weight: bold;
+        transition: all 0.2s;
     }
+    [data-testid="stSidebar"] .stButton>button:hover {
+        background-color: #dc2626;
+    }
+
+    /* تحسين الأزرار العامة في التطبيق */
+    .stButton>button {
+        border-radius: 8px;
+        font-weight: bold;
+        padding: 0.5rem 1rem;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        transition: all 0.2s ease;
+    }
+    .stButton>button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+
     div.stDataFrame {
         direction: rtl;
         text-align: right;
+        background-color: white;
+        padding: 10px;
+        border-radius: 10px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.02);
     }
     [data-testid="InputInstructions"] {
         display: none !important;
     }
+
+    /* تصميم بطاقات الإحصائيات التفاعلية */
     .metric-card {
         background: linear-gradient(135deg, #065f46 0%, #0f766e 100%);
         padding: 20px;
-        border-radius: 15px;
+        border-radius: 12px;
         color: white;
         text-align: center;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        box-shadow: 0 4px 6px rgba(0,0,0,0.08);
         transition: all 0.3s ease-in-out;
         cursor: pointer;
         margin-bottom: 10px;
     }
     .metric-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        transform: translateY(-4px);
+        box-shadow: 0 8px 15px rgba(0,0,0,0.15);
         background: linear-gradient(135deg, #047857 0%, #0d9488 100%);
     }
     .metric-card h3 {
         margin: 0;
-        font-size: 16px;
+        font-size: 15px;
         opacity: 0.9;
     }
     .metric-card h2 {
-        margin: 10px 0 0 0;
-        font-size: 28px;
+        margin: 8px 0 0 0;
+        font-size: 26px;
     }
     </style>
 """,
     unsafe_allow_html=True,
 )
 
-# 1. تهيئة المستخدمين الافتراضيين
+# 1. تهيئة المستخدمين الافتراضيين (مع حقل حالة المستخدم: نشط / معطل)
 if "users_df" not in st.session_state:
   st.session_state.users_df = pd.DataFrame(
       {
@@ -75,7 +124,7 @@ if "logged_in" not in st.session_state:
   st.session_state.current_user = ""
   st.session_state.user_role = ""
 
-# 3. تهيئة البيانات التجريبية الشاملة (للعهد، الموظفين، وأنواع الأجهزة المختلفة)
+# 3. تهيئة البيانات التجريبية الشاملة للعهد
 if "assets_df" not in st.session_state:
   st.session_state.assets_df = pd.DataFrame(
       [
@@ -171,7 +220,7 @@ if "assets_df" not in st.session_state:
 if not st.session_state.logged_in:
   st.markdown(
       """
-        <div style="background: linear-gradient(to right, #065f46, #0f766e); padding: 30px; border-radius: 15px; color: white; text-align: center; margin-bottom: 30px;">
+        <div style="background: linear-gradient(135deg, #065f46, #0f766e); padding: 40px; border-radius: 16px; color: white; text-align: center; margin-bottom: 30px; box-shadow: 0 10px 25px rgba(0,0,0,0.1);">
             <h1 style="margin: 0; font-size: 32px;">نظام حصر الأصول والدعم التقني</h1>
             <p style="margin: 10px 0 0 0; opacity: 0.9; font-size: 18px;">وزارة التربية - إدارة النظم الآلية والبنية التحتية</p>
         </div>
@@ -187,7 +236,7 @@ if not st.session_state.logged_in:
       password_input = st.text_input(
           "كلمة المرور", type="password", value=""
       )
-      login_submit = st.form_submit_button("دخول")
+      login_submit = st.form_submit_button("دخول النظام")
 
       if login_submit:
         users = st.session_state.users_df
@@ -196,11 +245,17 @@ if not st.session_state.logged_in:
             & (users["كلمة المرور"] == password_input)
         ]
         if not matched.empty:
-          st.session_state.logged_in = True
-          st.session_state.current_user = username_input
-          st.session_state.user_role = matched.iloc[0]["الصلاحية"]
-          st.success("تم تسجيل الدخول بنجاح!")
-          st.rerun()
+          user_status = matched.iloc[0]["الحالة"]
+          if user_status == "معطل":
+            st.error(
+                "عذراً، هذا الحساب معطل حالياً. يجدر مراجعة مدير النظام."
+            )
+          else:
+            st.session_state.logged_in = True
+            st.session_state.current_user = username_input
+            st.session_state.user_role = matched.iloc[0]["الصلاحية"]
+            st.success("تم تسجيل الدخول بنجاح!")
+            st.rerun()
         else:
           st.error("اسم المستخدم أو كلمة المرور غير صحيحة.")
   st.stop()
@@ -211,9 +266,11 @@ if "current_page" not in st.session_state:
 
 # القائمة الجانبية للتنقل
 st.sidebar.title("🧭 تنقل النظام")
-st.sidebar.write(
-    f"المستخدم: **{st.session_state.current_user}** ({st.session_state.user_role})"
+st.sidebar.markdown(
+    f"<p style='color: #e2e8f0; font-size: 14px;'>المستخدم: <b>{st.session_state.current_user}</b><br>الصلاحية: {st.session_state.user_role}</p>",
+    unsafe_allow_html=True,
 )
+st.sidebar.markdown("---")
 
 nav_options = [
     "🏠 الرئيسية وإضافة العهد",
@@ -232,6 +289,7 @@ selected_nav = st.sidebar.radio(
     index=nav_options.index(st.session_state.current_page)
     if st.session_state.current_page in nav_options
     else 0,
+    label_visibility="collapsed",
 )
 if selected_nav != st.session_state.current_page:
   st.session_state.current_page = selected_nav
@@ -247,9 +305,9 @@ if st.sidebar.button("🚪 تسجيل الخروج"):
 # العنوان الثابت
 st.markdown(
     """
-    <div style="background: linear-gradient(to right, #065f46, #0f766e); padding: 20px; border-radius: 15px; color: white; text-align: center; margin-bottom: 20px;">
-        <h1 style="margin: 0; font-size: 28px;">نظام حصر الأصول والدعم التقني</h1>
-        <p style="margin: 5px 0 0 0; opacity: 0.9;">وزارة التربية - إدارة النظم الآلية والبنية التحتية (قسم التشغيل والدعم التقني)</p>
+    <div style="background: linear-gradient(135deg, #065f46, #0f766e); padding: 20px; border-radius: 12px; color: white; text-align: center; margin-bottom: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
+        <h1 style="margin: 0; font-size: 26px;">نظام حصر الأصول والدعم التقني</h1>
+        <p style="margin: 5px 0 0 0; opacity: 0.9; font-size: 14px;">وزارة التربية - إدارة النظم الآلية والبنية التحتية (قسم التشغيل والدعم التقني)</p>
     </div>
 """,
     unsafe_allow_html=True,
@@ -512,7 +570,9 @@ if page == "🏠 الرئيسية وإضافة العهد":
 elif page == "📋 سجل الأصول والبحث المتقدم":
   st.subheader("📋 سجل الأصول، إدارة الموظفين، والبحث المتقدم")
   if len(df) > 0:
-    search_query = st.text_input("🔍 ابحث في السجلات (بالاسم، السيريال، الإدارة...):", value="")
+    search_query = st.text_input(
+        "🔍 ابحث في السجلات (بالاسم، السيريال، الإدارة...):", value=""
+    )
     if search_query:
       mask = df.astype(str).apply(
           lambda x: x.str.contains(search_query, case=False, na=False)
@@ -727,8 +787,7 @@ elif page == "⚠️ تفاصيل الأعطال التقنية والصيانة
 
       st.markdown("---")
       st.markdown("#### 🛠️ تحديث حالة جهاز معطل وإرجاعه إلى (يعمل / سليم)")
-      
-      # اختيار الجهاز المعطل بواسطة سيريال الجهاز أو الموظف
+
       faulty_serials = faults_df["سيريال الجهاز"].tolist()
       selected_serial_to_fix = st.selectbox(
           "اختر سيريال الجهاز الذي تم إصلاحه:", [""] + faulty_serials
@@ -736,18 +795,24 @@ elif page == "⚠️ تفاصيل الأعطال التقنية والصيانة
 
       if st.button("تحديث الحالة إلى (يعمل وجاهز)"):
         if selected_serial_to_fix:
-          # تحديث حالة العطل إلى "سليم" في الـ DataFrame الأساسي
           st.session_state.assets_df.loc[
-              st.session_state.assets_df["سيريال الجهاز"] == selected_serial_to_fix,
-              "حالة العطل"
+              st.session_state.assets_df["سيريال الجهاز"]
+              == selected_serial_to_fix,
+              "حالة العطل",
           ] = "سليم"
-          st.success(f"تم تحديث الجهاز ذو السيريال ({selected_serial_to_fix}) إلى حالة (سليم ويعمل) بنجاح!")
+          st.success(
+              f"تم تحديث الجهاز ذو السيريال ({selected_serial_to_fix}) إلى حالة"
+              " (سليم ويعمل) بنجاح!"
+          )
           st.rerun()
         else:
           st.warning("الرجاء اختيار جهاز للتحديث.")
 
     else:
-      st.success("ممتاز! لا توجد أي أعطال مسجلة حالياً، كافة الأجهزة سليمة وتعمل بكفاءة.")
+      st.success(
+          "ممتاز! لا توجد أي أعطال مسجلة حالياً، كافة الأجهزة سليمة وتعمل"
+          " بكفاءة."
+      )
   else:
     st.info("لا توجد بيانات مسجلة.")
 
@@ -761,7 +826,8 @@ elif page == "👥 إدارة المستخدمين":
     )
     st.dataframe(st.session_state.users_df, use_container_width=True)
   else:
-    st.markdown("#### إضافة مستخدم جديد")
+    # 1. إضافة مستخدم جديد
+    st.markdown("#### ➕ إضافة مستخدم جديد")
     with st.form("new_user_form"):
       ncol1, ncol2, ncol3 = st.columns(3)
       with ncol1:
@@ -797,7 +863,71 @@ elif page == "👥 إدارة المستخدمين":
           st.rerun()
 
     st.markdown("---")
-    st.markdown("#### قائمة المستخدمين الحاليين")
+
+    # 2. تعديل كلمة المرور أو الحالة أو الحذف للمستخدمين الحاليين
+    st.markdown("#### ⚙️ تعديل أو تعطيل أو حذف المستخدمين")
+    users_list = st.session_state.users_df["اسم المستخدم"].tolist()
+    selected_target_user = st.selectbox(
+        "اختر اسم المستخدم للتعديل أو الإدارة:", [""] + users_list
+    )
+
+    if selected_target_user:
+      current_user_data = st.session_state.users_df[
+          st.session_state.users_df["اسم المستخدم"] == selected_target_user
+      ].iloc[0]
+
+      with st.form("edit_user_form"):
+        ecol1, ecol2, ecol3 = st.columns(3)
+        with ecol1:
+          new_pass_edit = st.text_input(
+              "تعديل كلمة المرور (اتركها فارغة لعدم التغيير)",
+              type="password",
+              value="",
+          )
+        with ecol2:
+          current_status_idx = (
+              0 if current_user_data["الحالة"] == "نشط" else 1
+          )
+          new_status_edit = st.selectbox(
+              "حالة الحساب", ["نشط", "معطل"], index=current_status_idx
+          )
+        with ecol3:
+          current_role_options = ["مدير النظام", "فني دعم", "مستخدم عارض"]
+          curr_role_idx = (
+              current_role_options.index(current_user_data["الصلاحية"])
+              if current_user_data["الصلاحية"] in current_role_options
+              else 0
+          )
+          new_role_edit = st.selectbox(
+              "الصلاحية", current_role_options, index=curr_role_idx
+          )
+
+        update_user_btn = st.form_submit_button("حفظ التعديلات على المستخدم")
+        if update_user_btn:
+          # تحديث الحالات في الـ DataFrame
+          idx = st.session_state.users_df[
+              st.session_state.users_df["اسم المستخدم"] == selected_target_user
+          ].index[0]
+          if new_pass_edit.strip() != "":
+            st.session_state.users_df.at[idx, "كلمة المرور"] = new_pass_edit
+          st.session_state.users_df.at[idx, "الحالة"] = new_status_edit
+          st.session_state.users_df.at[idx, "الصلاحية"] = new_role_edit
+          st.success(f"تم تحديث بيانات المستخدم ({selected_target_user}) بنجاح!")
+          st.rerun()
+
+      # خيار الحذف المستقل
+      if st.button("🗑️ حذف هذا المستخدم نهائياً"):
+        if selected_target_user == "admin":
+          st.error("لا يمكن حذف حساب مدير النظام الأساسي (admin).")
+        else:
+          st.session_state.users_df = st.session_state.users_df[
+              st.session_state.users_df["اسم المستخدم"] != selected_target_user
+          ].reset_index(drop=True)
+          st.success(f"تم حذف المستخدم ({selected_target_user}) بنجاح!")
+          st.rerun()
+
+    st.markdown("---")
+    st.markdown("#### 📋 قائمة المستخدمين الحاليين بالنظام")
     st.dataframe(st.session_state.users_df, use_container_width=True)
 
 # زر العودة للرئيسية إذا كان المستخدم في صفحة فرعية
