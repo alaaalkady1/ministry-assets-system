@@ -7,7 +7,7 @@ st.set_page_config(
     page_title="نظام حصر الأصول والدعم التقني", page_icon="💻", layout="wide"
 )
 
-# تخصيص التصميم ليدعم اللغة العربية والاتجاه من اليمين لليسار
+# تخصيص التصميم (تنسيق RTL + تأثيرات حركية وتفاعلية للبطاقات)
 st.markdown(
     """
     <style>
@@ -25,12 +25,38 @@ st.markdown(
         direction: rtl;
         text-align: right;
     }
+    /* تصميم بطاقات الإحصائيات التفاعلية */
+    .metric-card {
+        background: linear-gradient(135deg, #065f46 0%, #0f766e 100%);
+        padding: 20px;
+        border-radius: 15px;
+        color: white;
+        text-align: center;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        transition: all 0.3s ease-in-out;
+        cursor: pointer;
+        margin-bottom: 10px;
+    }
+    .metric-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        background: linear-gradient(135deg, #047857 0%, #0d9488 100%);
+    }
+    .metric-card h3 {
+        margin: 0;
+        font-size: 16px;
+        opacity: 0.9;
+    }
+    .metric-card h2 {
+        margin: 10px 0 0 0;
+        font-size: 28px;
+    }
     </style>
 """,
     unsafe_allow_html=True,
 )
 
-# تهيئة الذاكرة المؤقتة للبيانات بالترتيب الجديد المطلوب
+# تهيئة الذاكرة المؤقتة للبيانات بالترتيب المطلوب (المنطقة ← المبنى ← الدور ← ...)
 if "assets_df" not in st.session_state:
   st.session_state.assets_df = pd.DataFrame(
       columns=[
@@ -52,21 +78,32 @@ if "assets_df" not in st.session_state:
       ]
   )
 
-# القائمة الجانبية للتنقل بين الصفحات والإحصائيات
+# تهيئة نظام التنقل في الذاكرة المؤقتة إذا لم يكن موجوداً
+if "current_page" not in st.session_state:
+  st.session_state.current_page = "🏠 الرئيسية وإضافة العهد"
+
+# القائمة الجانبية للتنقل اليدوي أيضاً
 st.sidebar.title("🧭 تنقل النظام")
-page = st.sidebar.radio(
-    "اختر الصفحة:",
-    [
-        "🏠 الرئيسية واللوحة الشاملة",
-        "📥 تسجيل عهدة جديدة / رفع ملف",
-        "📋 سجل الأصول والبحث المتقدم",
-        "📊 تفاصيل إحصائيات الموظفين",
-        "💻 تفاصيل إحصائيات الأجهزة (PC)",
-        "🖥️ تفاصيل إحصائيات الشاشات",
-        "🖨️ تفاصيل إحصائيات الطابعات (ملون / أسود / ملصقات)",
-        "⚠️ تفاصيل الأعطال التقنية",
-    ],
+nav_options = [
+    "🏠 الرئيسية وإضافة العهد",
+    "📋 سجل الأصول والبحث المتقدم",
+    "📊 تفاصيل إحصائيات الموظفين",
+    "💻 تفاصيل إحصائيات الأجهزة (PC)",
+    "🖥️ تفاصيل إحصائيات الشاشات",
+    "🖨️ تفاصيل إحصائيات الطابعات",
+    "⚠️ تفاصيل الأعطال التقنية",
+]
+
+selected_nav = st.sidebar.radio(
+    "الانتقال السريع:",
+    nav_options,
+    index=nav_options.index(st.session_state.current_page)
+    if st.session_state.current_page in nav_options
+    else 0,
 )
+if selected_nav != st.session_state.current_page:
+  st.session_state.current_page = selected_nav
+  st.rerun()
 
 # العنوان الثابت
 st.markdown(
@@ -82,78 +119,137 @@ st.markdown(
 df = st.session_state.assets_df
 total_records = len(df)
 
-# --- 1. الرئيسية واللوحة الشاملة ---
-if page == "🏠 الرئيسية واللوحة الشاملة":
-  st.subheader("📊 لوحة المؤشرات والإحصائيات الشاملة")
+# حساب الأرقام للإحصائيات
+total_pcs = (
+    df["نوع الجهاز (PC)"].astype(bool).sum() if total_records > 0 else 0
+)
+total_monitors = (
+    df["مقاس/نوع الشاشة"].astype(bool).sum() if total_records > 0 else 0
+)
+total_printers = (
+    df["موديل الطابعة"].astype(bool).sum() if total_records > 0 else 0
+)
+total_faults = (
+    df[df["حالة العطل"] != "سليم"]["حالة العطل"].count()
+    if total_records > 0
+    else 0
+)
 
-  total_pcs = (
-      df["نوع الجهاز (PC)"].astype(bool).sum() if total_records > 0 else 0
-  )
-  total_monitors = (
-      df["مقاس/نوع الشاشة"].astype(bool).sum() if total_records > 0 else 0
-  )
-  total_printers = (
-      df["موديل الطابعة"].astype(bool).sum() if total_records > 0 else 0
-  )
-  total_faults = (
-      df[df["حالة العطل"] != "سليم"]["حالة العطل"].count()
-      if total_records > 0
-      else 0
-  )
+page = st.session_state.current_page
 
-  col1, col2, col3, col4, col5 = st.columns(5)
-  with col1:
-    st.metric("إجمالي الموظفين", total_records)
-  with col2:
-    st.metric("إجمالي الأجهزة", total_pcs)
-  with col3:
-    st.metric("إجمالي الشاشات", total_monitors)
-  with col4:
-    st.metric("إجمالي الطابعات", total_printers)
-  with col5:
-    st.metric("الأجهزة المعطلة", total_faults)
-
-  st.info(
-      "💡 يمكنك الانتقال إلى أي إحصائية تفصيلية عبر القائمة الجانبية لمعاينة"
-      " التصنيفات بدقة."
+# --- 1. الرئيسية وإضافة العهد (دمج الواجهة الرئيسية مع النموذج) ---
+if page == "🏠 الرئيسية وإضافة العهد":
+  st.subheader("📊 لوحة المؤشرات التفاعلية")
+  st.markdown(
+      "<p style='color: gray;'>اضغط على أي بط أدناه للانتقال الفوري للتقرير"
+      " الخاص به:</p>",
+      unsafe_allow_html=True,
   )
 
-  if total_records > 0:
-    st.markdown("### 📋 معاينة سريعة لأحدث السجلات")
-    st.dataframe(df.tail(5), use_container_width=True)
+  # تصميم الداشبورد التفاعلي باستخدام أزرار فوق البطاقات المرئية
+  dcol1, dcol2, dcol3, dcol4, dcol5 = st.columns(5)
 
-# --- 2. تسجيل عهدة جديدة / رفع ملف ---
-elif page == "📥 تسجيل عهدة جديدة / رفع ملف":
-  st.subheader("استيراد البيانات الضخمة عبر ملف Excel / CSV")
-  uploaded_file = st.file_uploader(
-      "اختر ملف Excel أو CSV", type=["xlsx", "xls", "csv"]
-  )
+  with dcol1:
+    st.markdown(
+        f"""
+        <div class="metric-card">
+            <h3>إجمالي الموظفين</h3>
+            <h2>{total_records}</h2>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+    if st.button("عرض تقرير الموظفين", key="btn_emp"):
+      st.session_state.current_page = "📊 تفاصيل إحصائيات الموظفين"
+      st.rerun()
 
-  if uploaded_file is not None:
-    try:
-      if uploaded_file.name.endswith(".csv"):
-        df_imported = pd.read_csv(uploaded_file)
-      else:
-        df_imported = pd.read_excel(uploaded_file)
+  with dcol2:
+    st.markdown(
+        f"""
+        <div class="metric-card">
+            <h3>إجمالي الأجهزة</h3>
+            <h2>{total_pcs}</h2>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+    if st.button("عرض تقرير الأجهزة", key="btn_pc"):
+      st.session_state.current_page = "💻 تفاصيل إحصائيات الأجهزة (PC)"
+      st.rerun()
 
-      if st.button("معالجة وإضافة البيانات المرفوعة"):
-        st.session_state.assets_df = pd.concat(
-            [st.session_state.assets_df, df_imported], ignore_index=True
-        )
-        st.success(
-            f"تم استيراد {len(df_imported)} سجلاً بنجاح إلى قاعدة البيانات!"
-        )
-        st.rerun()
-    except Exception as e:
-      st.error(f"حدث خطأ أثناء قراءة الملف: {e}")
+  with dcol3:
+    st.markdown(
+        f"""
+        <div class="metric-card">
+            <h3>إجمالي الشاشات</h3>
+            <h2>{total_monitors}</h2>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+    if st.button("عرض تقرير الشاشات", key="btn_mon"):
+      st.session_state.current_page = "🖥️ تفاصيل إحصائيات الشاشات"
+      st.rerun()
+
+  with dcol4:
+    st.markdown(
+        f"""
+        <div class="metric-card">
+            <h3>إجمالي الطابعات</h3>
+            <h2>{total_printers}</h2>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+    if st.button("عرض تقرير الطابعات", key="btn_prn"):
+      st.session_state.current_page = "🖨️ تفاصيل إحصائيات الطابعات"
+      st.rerun()
+
+  with dcol5:
+    st.markdown(
+        f"""
+        <div class="metric-card" style="background: linear-gradient(135deg, #991b1b 0%, #b91c1c 100%);">
+            <h3>الأجهزة المعطلة</h3>
+            <h2>{total_faults}</h2>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+    if st.button("عرض تقرير الأعطال", key="btn_flt"):
+      st.session_state.current_page = "⚠️ تفاصيل الأعطال التقنية"
+      st.rerun()
 
   st.markdown("---")
-  st.subheader("الإدخال اليدوي مع القوائم والمحددات الجديدة")
 
+  # قسم تسجيل عهدة جديدة ورفع الملفات في نفس الصفحة الرئيسية
+  st.subheader("📥 استيراد البيانات (Excel / CSV) أو الإجادة اليدوية الفردية")
+
+  with st.expander("📁 اضغط هنا لرفع ملف إكسيل جماعي", expanded=False):
+    uploaded_file = st.file_uploader(
+        "اختر ملف Excel أو CSV", type=["xlsx", "xls", "csv"]
+    )
+    if uploaded_file is not None:
+      try:
+        if uploaded_file.name.endswith(".csv"):
+          df_imported = pd.read_csv(uploaded_file)
+        else:
+          df_imported = pd.read_excel(uploaded_file)
+
+        if st.button("معالجة وإضافة البيانات المرفوعة"):
+          st.session_state.assets_df = pd.concat(
+              [st.session_state.assets_df, df_imported], ignore_index=True
+          )
+          st.success(
+              f"تم استيراد {len(df_imported)} سجلاً بنجاح إلى قاعدة البيانات!"
+          )
+          st.rerun()
+      except Exception as e:
+        st.error(f"حدث خطأ أثناء قراءة الملف: {e}")
+
+  st.markdown("#### نموذج تسجيل عهدة جديدة")
   with st.form("manual_form"):
     col1, col2, col3 = st.columns(3)
     with col1:
-      # اختيار المنطقة (6 مناطق)
       regions = [
           "منطقة العاصمة التعليمية",
           "منطقة حولي التعليمية",
@@ -168,7 +264,6 @@ elif page == "📥 تسجيل عهدة جديدة / رفع ملف":
           "اسم المبنى", placeholder="أدخل اسم أو رقم المبنى"
       )
     with col3:
-      # 11 دور + الدور الأرضي
       floor_options = [
           "الدور الأرضي",
           "الدور الأول",
@@ -193,12 +288,9 @@ elif page == "📥 تسجيل عهدة جديدة / رفع ملف":
     with col6:
       employee = st.text_input("اسم الموظف المسؤول")
 
-    st.markdown(
-        "#### تفاصيل الأجهزة، الشاشات، والطابعات (حسب الخيارات المحددة)"
-    )
+    st.markdown("#### تفاصيل الأجهزة، الشاشات، والطابعات")
     col7, col8 = st.columns(2)
     with col7:
-      # أنواع الأجهزة المطلوبة
       pc_options = [
           "غير موجود",
           "Lenovo M70q (Type B)",
@@ -208,7 +300,6 @@ elif page == "📥 تسجيل عهدة جديدة / رفع ملف":
       ]
       pc_type = st.selectbox("نوع الجهاز (PC)", pc_options)
 
-      # الشاشات (تظهر فقط إذا لم يكن الجهاز Laptop)
       if pc_type != "laptop":
         monitor_options = [
             "غير موجود",
@@ -218,9 +309,7 @@ elif page == "📥 تسجيل عهدة جديدة / رفع ملف":
         monitor_type = st.selectbox("مقاس / نوع الشاشة", monitor_options)
       else:
         monitor_type = "لابتوب (شاشة مدمجة)"
-        st.info("تم تخطي اختيار الشاشة لأن الجهاز Laptop.")
 
-      # موديلات الطابعات المطلوبة
       printer_options = [
           "غير موجود",
           "Canon MF463dw (Black)",
@@ -229,7 +318,6 @@ elif page == "📥 تسجيل عهدة جديدة / رفع ملف":
       ]
       printer_model = st.selectbox("موديل الطابعة", printer_options)
 
-      # تحديد نوع الطباعة تلقائياً بناءً على اختيار الطابعة
       if printer_model == "Canon MF463dw (Black)":
         printer_color_type = "أسود وأبيض"
       elif printer_model == "Canon MF754Cdw (Color)":
@@ -247,8 +335,7 @@ elif page == "📥 تسجيل عهدة جديدة / رفع ملف":
     col_fault, col_notes = st.columns(2)
     with col_fault:
       fault_status = st.text_input(
-          "خانة تسجيل العطل",
-          placeholder="مثال: سليم / عطل في الباور / لا يتصل بالشبكة",
+          "خانة تسجيل العطل", placeholder="سليم / أو تفاصيل العطل"
       )
     with col_notes:
       notes = st.text_input("ملاحظات إضافية")
@@ -285,9 +372,9 @@ elif page == "📥 تسجيل عهدة جديدة / رفع ملف":
         st.success("تم تسجيل العهدة بنجاح!")
         st.rerun()
 
-# --- 3. سجل الأصول والبحث المتقدم ---
+# --- 2. سجل الأصول والبحث المتقدم ---
 elif page == "📋 سجل الأصول والبحث المتقدم":
-  st.subheader("سجل الأصول والبحث الفوري (مرتب حسب المنطقة والمبنى والدور)")
+  st.subheader("📋 سجل الأصول والبحث الفوري")
   if len(df) > 0:
     search_query = st.text_input(
         "🔍 ابحث في السجلات (بالمنطقة، الاسم، السيريال، الإدارة، أو الدور)...",
@@ -322,7 +409,7 @@ elif page == "📋 سجل الأصول والبحث المتقدم":
   else:
     st.info("لا توجد بيانات مسجلة حتى الآن.")
 
-# --- 4. تفاصيل إحصائيات الموظفين ---
+# --- 3. تفاصيل إحصائيات الموظفين ---
 elif page == "📊 تفاصيل إحصائيات الموظفين":
   st.subheader("📊 إحصائيات توزيع الموظفين حسب المناطق والمباني")
   if total_records > 0:
@@ -339,7 +426,7 @@ elif page == "📊 تفاصيل إحصائيات الموظفين":
   else:
     st.info("لا توجد بيانات كافية لعرض الإحصائيات.")
 
-# --- 5. تفاصيل إحصائيات الأجهزة (PC) ---
+# --- 4. تفاصيل إحصائيات الأجهزة (PC) ---
 elif page == "💻 تفاصيل إحصائيات الأجهزة (PC)":
   st.subheader("💻 تفصيل أجهزة الحاسب الآلي واللابتوب")
   if total_records > 0:
@@ -358,7 +445,7 @@ elif page == "💻 تفاصيل إحصائيات الأجهزة (PC)":
   else:
     st.info("لا توجد بيانات مسجلة.")
 
-# --- 6. تفاصيل إحصائيات الشاشات ---
+# --- 5. تفاصيل إحصائيات الشاشات ---
 elif page == "🖥️ تفاصيل إحصائيات الشاشات":
   st.subheader("🖥️ تفصيل الشاشات حسب المقاسات")
   if total_records > 0:
@@ -377,8 +464,8 @@ elif page == "🖥️ تفاصيل إحصائيات الشاشات":
   else:
     st.info("لا توجد بيانات مسجلة.")
 
-# --- 7. تفاصيل إحصائيات الطابعات ---
-elif page == "🖨️ تفاصيل إحصائيات الطابعات (ملون / أسود / ملصقات)":
+# --- 6. تفاصيل إحصائيات الطابعات ---
+elif page == "🖨️ تفاصيل إحصائيات الطابعات":
   st.subheader("🖨️ التقرير التفصيلي للطابعات (ملون، أسود وأبيض، وملصقات)")
   if total_records > 0:
     print_df = df[
@@ -411,7 +498,7 @@ elif page == "🖨️ تفاصيل إحصائيات الطابعات (ملون /
   else:
     st.info("لا توجد بيانات مسجلة.")
 
-# --- 8. تفاصيل الأعطال التقنية ---
+# --- 7. تفاصيل الأعطال التقنية ---
 elif page == "⚠️ تفاصيل الأعطال التقنية":
   st.subheader("⚠️ متابعة الأعطال التقنية والأجهزة المعطلة")
   if total_records > 0:
@@ -437,3 +524,10 @@ elif page == "⚠️ تفاصيل الأعطال التقنية":
       st.success("ممتاز! لا توجد أي أعطال مسجلة حالياً، كافة الأجهزة سليمة.")
   else:
     st.info("لا توجد بيانات مسجلة.")
+
+# زر العودة للرئيسية إذا كان المستخدم في صفحة فرعية
+if page != "🏠 الرئيسية وإضافة العهد":
+  st.markdown("---")
+  if st.button("⬅️ العودة إلى الرئيسية ولوحة المؤشرات"):
+    st.session_state.current_page = "🏠 الرئيسية وإضافة العهد"
+    st.rerun()
