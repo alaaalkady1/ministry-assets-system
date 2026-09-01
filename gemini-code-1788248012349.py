@@ -7,7 +7,7 @@ st.set_page_config(
     page_title="نظام حصر الأصول والدعم التقني", page_icon="💻", layout="wide"
 )
 
-# تخصيص التصميم الاحترافي (تنسيق RTL + تحسين واجهة القائمة الجانبية والأزرار والبطاقات)
+# تخصيص التصميم الاحترافي (تنسيق RTL + تغيير اللون العام إلى الذهبي الفاخر + إبراز الأزرار الجانبية بوضوح تام)
 st.markdown(
     """
     <style>
@@ -15,29 +15,30 @@ st.markdown(
         direction: rtl;
         text-align: right;
         font-family: 'Tajawal', sans-serif;
-        background-color: #f8fafc;
+        background-color: #fdfbf7;
     }
     
-    /* تحسين تصميم القائمة الجانبية بالكامل */
+    /* تصميم القائمة الجانبية باللون الذهبي الداكن الفاخر وتأمين وضوح النص الأبيض */
     [data-testid="stSidebar"] {
-        background: linear-gradient(180deg, #065f46 0%, #0f766e 100%);
-        color: white;
+        background: linear-gradient(180deg, #78350f 0%, #92400e 50%, #b45309 100%);
+        color: #ffffff;
     }
     [data-testid="stSidebar"] .stRadio label {
-        color: white !important;
-        font-weight: 500;
+        color: #ffffff !important;
+        font-weight: 600;
         font-size: 15px;
-        padding: 8px 12px;
+        padding: 10px 14px;
         border-radius: 8px;
         transition: all 0.2s ease-in-out;
         margin-bottom: 4px;
+        background-color: rgba(0, 0, 0, 0.15);
     }
     [data-testid="stSidebar"] .stRadio label:hover {
-        background-color: rgba(255, 255, 255, 0.15);
+        background-color: rgba(255, 255, 255, 0.25);
         cursor: pointer;
     }
     [data-testid="stSidebar"] hr {
-        border-color: rgba(255, 255, 255, 0.2);
+        border-color: rgba(255, 255, 255, 0.3);
     }
     [data-testid="stSidebar"] .stButton>button {
         background-color: rgba(239, 68, 68, 0.9);
@@ -51,17 +52,22 @@ st.markdown(
         background-color: #dc2626;
     }
 
-    /* تحسين الأزرار العامة في التطبيق */
+    /* تحسين الأزرار العامة في التطبيق بلون منسجم مع الهوية الذهبية */
     .stButton>button {
         border-radius: 8px;
         font-weight: bold;
         padding: 0.5rem 1rem;
+        background-color: #d97706;
+        color: white;
+        border: none;
         box-shadow: 0 2px 4px rgba(0,0,0,0.05);
         transition: all 0.2s ease;
     }
     .stButton>button:hover {
+        background-color: #b45309;
         transform: translateY(-2px);
         box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        color: white;
     }
 
     div.stDataFrame {
@@ -76,9 +82,9 @@ st.markdown(
         display: none !important;
     }
 
-    /* تصميم بطاقات الإحصائيات التفاعلية */
+    /* تصميم بطاقات الإحصائيات التفاعلية بدرجات الذهبي الفاخر */
     .metric-card {
-        background: linear-gradient(135deg, #065f46 0%, #0f766e 100%);
+        background: linear-gradient(135deg, #b45309 0%, #d97706 100%);
         padding: 20px;
         border-radius: 12px;
         color: white;
@@ -91,12 +97,12 @@ st.markdown(
     .metric-card:hover {
         transform: translateY(-4px);
         box-shadow: 0 8px 15px rgba(0,0,0,0.15);
-        background: linear-gradient(135deg, #047857 0%, #0d9488 100%);
+        background: linear-gradient(135deg, #92400e 0%, #b45309 100%);
     }
     .metric-card h3 {
         margin: 0;
         font-size: 15px;
-        opacity: 0.9;
+        opacity: 0.95;
     }
     .metric-card h2 {
         margin: 8px 0 0 0;
@@ -107,7 +113,7 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# 1. تهيئة المستخدمين الافتراضيين (مع حقل حالة المستخدم: نشط / معطل)
+# 1. تهيئة المستخدمين الافتراضيين
 if "users_df" not in st.session_state:
   st.session_state.users_df = pd.DataFrame(
       {
@@ -220,9 +226,9 @@ if "assets_df" not in st.session_state:
 if not st.session_state.logged_in:
   st.markdown(
       """
-        <div style="background: linear-gradient(135deg, #065f46, #0f766e); padding: 40px; border-radius: 16px; color: white; text-align: center; margin-bottom: 30px; box-shadow: 0 10px 25px rgba(0,0,0,0.1);">
+        <div style="background: linear-gradient(135deg, #78350f, #b45309); padding: 40px; border-radius: 16px; color: white; text-align: center; margin-bottom: 30px; box-shadow: 0 10px 25px rgba(0,0,0,0.1);">
             <h1 style="margin: 0; font-size: 32px;">نظام حصر الأصول والدعم التقني</h1>
-            <p style="margin: 10px 0 0 0; opacity: 0.9; font-size: 18px;">وزارة التربية - إدارة النظم الآلية والبنية التحتية</p>
+            <p style="margin: 10px 0 0 0; opacity: 0.95; font-size: 18px;">وزارة التربية - إدارة النظم الآلية والبنية التحتية</p>
         </div>
     """,
       unsafe_allow_html=True,
@@ -248,7 +254,7 @@ if not st.session_state.logged_in:
           user_status = matched.iloc[0]["الحالة"]
           if user_status == "معطل":
             st.error(
-                "عذراً، هذا الحساب معطل حالياً. يجدر مراجعة مدير النظام."
+                "عذراً، هذا الحساب معطل حالياً. يرجى مراجعة مدير النظام."
             )
           else:
             st.session_state.logged_in = True
@@ -267,7 +273,7 @@ if "current_page" not in st.session_state:
 # القائمة الجانبية للتنقل
 st.sidebar.title("🧭 تنقل النظام")
 st.sidebar.markdown(
-    f"<p style='color: #e2e8f0; font-size: 14px;'>المستخدم: <b>{st.session_state.current_user}</b><br>الصلاحية: {st.session_state.user_role}</p>",
+    f"<p style='color: #fef3c7; font-size: 14px;'>المستخدم: <b>{st.session_state.current_user}</b><br>الصلاحية: {st.session_state.user_role}</p>",
     unsafe_allow_html=True,
 )
 st.sidebar.markdown("---")
@@ -305,9 +311,9 @@ if st.sidebar.button("🚪 تسجيل الخروج"):
 # العنوان الثابت
 st.markdown(
     """
-    <div style="background: linear-gradient(135deg, #065f46, #0f766e); padding: 20px; border-radius: 12px; color: white; text-align: center; margin-bottom: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
+    <div style="background: linear-gradient(135deg, #78350f, #b45309); padding: 20px; border-radius: 12px; color: white; text-align: center; margin-bottom: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
         <h1 style="margin: 0; font-size: 26px;">نظام حصر الأصول والدعم التقني</h1>
-        <p style="margin: 5px 0 0 0; opacity: 0.9; font-size: 14px;">وزارة التربية - إدارة النظم الآلية والبنية التحتية (قسم التشغيل والدعم التقني)</p>
+        <p style="margin: 5px 0 0 0; opacity: 0.95; font-size: 14px;">وزارة التربية - إدارة النظم الآلية والبنية التحتية (قسم التشغيل والدعم التقني)</p>
     </div>
 """,
     unsafe_allow_html=True,
@@ -904,7 +910,6 @@ elif page == "👥 إدارة المستخدمين":
 
         update_user_btn = st.form_submit_button("حفظ التعديلات على المستخدم")
         if update_user_btn:
-          # تحديث الحالات في الـ DataFrame
           idx = st.session_state.users_df[
               st.session_state.users_df["اسم المستخدم"] == selected_target_user
           ].index[0]
@@ -915,7 +920,6 @@ elif page == "👥 إدارة المستخدمين":
           st.success(f"تم تحديث بيانات المستخدم ({selected_target_user}) بنجاح!")
           st.rerun()
 
-      # خيار الحذف المستقل
       if st.button("🗑️ حذف هذا المستخدم نهائياً"):
         if selected_target_user == "admin":
           st.error("لا يمكن حذف حساب مدير النظام الأساسي (admin).")
