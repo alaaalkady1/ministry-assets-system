@@ -314,15 +314,15 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# حساب الإحصائيات السريعة
+# حساب الإحصائيات السريعة بطريقة آمنة
 df = st.session_state.assets_df
 total_records = len(df)
-total_pcs = df["نوع الجهاز (PC)"].replace("", pd.NA).dropna().count()
-total_monitors = df[
-    ~df["مقاس/نوع الشاشة"].isin(["لا يوجد / مدمج", "N/A", ""])
-].count()[0]
-total_printers = df[~df["موديل الطابعة"].isin(["لا يوجد", ""])].count()[0]
-total_faults = df[df["حالة العطل"] != "سليم"].shape[0]
+total_pcs = len(df[df["نوع الجهاز (PC)"].str.strip() != ""])
+total_monitors = len(
+    df[~df["مقاس/نوع الشاشة"].isin(["لا يوجد / مدمج", "N/A", ""])]
+)
+total_printers = len(df[~df["موديل الطابعة"].isin(["لا يوجد", ""])])
+total_faults = len(df[df["حالة العطل"] != "سليم"])
 
 # عرض أزرار / بطاقات الإحصائيات التفاعلية في الأعلى (تنتقل للصفحات عند الضغط عليها)
 st.markdown(
@@ -381,7 +381,7 @@ st.markdown(
 )
 
 # -------------------------------------------------------------------------
-# 7. الصفحات والوظائف البرملية الكاملة
+# 7. الصفحات والوظائف البرمجية الكاملة
 # -------------------------------------------------------------------------
 page = st.session_state.current_page
 
@@ -485,7 +485,6 @@ if page == "🏠 الرئيسية وإضافة العهد":
             "💾 حفظ وتسجيل العهدة في قاعدة البيانات"
         )
         if submit_btn:
-            # الترتيب المطلوب: المنطقة -> المبنى -> الدور -> اسم الموظف -> الجهاز -> الشاشة -> الطابعة -> الباركود -> الحالة -> ملاحظات
             new_row = pd.DataFrame(
                 [
                     {
@@ -513,7 +512,6 @@ if page == "🏠 الرئيسية وإضافة العهد":
 elif page == "📋 سجل الأصول والبحث والتعديل":
     st.subheader("📋 سجل الأصول والعهد (بحث، تعديل، وحذف)")
 
-    # خانة بحث متقدم
     search_query = st.text_input(
         "🔍 ابحث برقم الباركود، اسم الموظف، أو السيريال:"
     )
@@ -535,7 +533,6 @@ elif page == "📋 سجل الأصول والبحث والتعديل":
     st.markdown(f"**عدد السجلات المعروضة:** {len(df_display)}")
     st.dataframe(df_display, use_container_width=True)
 
-    # تصدير البيانات الشاملة Excel/CSV
     csv_data = df_display.to_csv(index=False).encode("utf-8-sig")
     st.download_button(
         label="📥 تحميل السجل الحالي كملف Excel/CSV",
@@ -688,8 +685,9 @@ elif page == "⚠️ الأعطال التقنية والصيانة":
             "🎉 ممتاز جداً! لا توجد أي أعطال مسجلة حالياً، جميع الأجهزة سليمة وتعمل بكفاءة."
         )
     else:
+        num_faults = len(faults_df)
         st.error(
-            f"⚠️ يوجد عدد ({lenפ := len(faults_df)}) جهاز بحاجة للصيانة والمتابعة الفورية."
+            f"⚠️ يوجد عدد ({num_faults}) جهاز بحاجة للصيانة والمتابعة الفورية."
         )
         st.dataframe(
             faults_df[
