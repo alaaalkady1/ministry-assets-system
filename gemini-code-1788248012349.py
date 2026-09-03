@@ -12,7 +12,7 @@ st.set_page_config(
 )
 
 # -------------------------------------------------------------------------
-# 2. تخصيص التصميم الاحترافي (UI/UX - RTL & Custom Theme)
+# 2. تخصيص التصميم الفاتح الاحترافي (Light Theme & Clean UI)
 # -------------------------------------------------------------------------
 st.markdown(
     """
@@ -27,114 +27,120 @@ st.markdown(
     }
     
     [data-testid="stAppViewContainer"] {
-        background-color: #0F172A; /* خلفية داكنة احترافية للأنظمة */
-        color: #F8FAFC;
+        background-color: #F8FAFC; /* خلفية فاتحة ونظيفة */
+        color: #1E293B;
     }
 
-    /* محاذاة حقول الإدخال */
+    /* القائمة الجانبية الفاتحة */
+    [data-testid="stSidebar"] {
+        background-color: #FFFFFF !important;
+        border-left: 1px solid #E2E8F0;
+        box-shadow: -2px 0 10px rgba(0,0,0,0.02);
+    }
+    [data-testid="stSidebar"] * { 
+        color: #1E293B !important; 
+    }
+
+    /* إخفاء زر طي القائمة الجانبية (السهمين) لمنع الأخطاء والشكل المزعج */
+    [data-testid="collapsedControl"] {
+        display: none !important;
+    }
+
+    /* محاذاة حقول الإدخال وتصميمها */
     .stTextInput input, .stSelectbox select, .stMultiSelect div, textarea, 
     [data-baseweb="select"] span, [data-baseweb="input"] input {
         direction: rtl !important;
         text-align: right !important;
         border-radius: 8px !important;
-        background-color: #1E293B !important;
-        color: white !important;
+        background-color: #FFFFFF !important;
+        color: #1E293B !important;
+        border: 1px solid #CBD5E1 !important;
     }
     
-    /* إخفاء تعليمات الإدخال المزعجة */
     [data-testid="InputInstructions"] {
         display: none !important;
     }
 
-    /* القائمة الجانبية */
-    [data-testid="stSidebar"] {
-        background-color: #1E293B !important;
-        box-shadow: -2px 0 15px rgba(0,0,0,0.3);
-        border-left: 1px solid #334155;
-    }
-    [data-testid="stSidebar"] * { color: #F8FAFC !important; }
-
-    /* الأزرار في القائمة الجانبية والصفحة */
+    /* الأزرار العادية */
     .stButton>button {
         border-radius: 8px;
         font-weight: 700;
         padding: 0.6rem 1.2rem;
-        background-color: #3B82F6 !important;
+        background-color: #2563EB !important;
         color: white !important;
         border: none;
-        box-shadow: 0 4px 6px rgba(59, 130, 246, 0.3);
+        box-shadow: 0 4px 6px rgba(37, 99, 235, 0.15);
         transition: all 0.3s ease;
     }
     .stButton>button:hover {
-        background-color: #2563EB !important;
-        transform: translateY(-2px);
-        box-shadow: 0 6px 12px rgba(59, 130, 246, 0.5);
+        background-color: #1D4ED8 !important;
+        transform: translateY(-1px);
+        box-shadow: 0 6px 12px rgba(37, 99, 235, 0.25);
     }
 
-    /* بطاقات الإحصائيات التفاعلية */
+    /* بطاقات الإحصائيات التفاعلية الفاتحة */
     .metric-card {
-        background: linear-gradient(135deg, #1E293B 0%, #334155 100%);
+        background: #FFFFFF;
         padding: 22px;
         border-radius: 12px;
-        color: white;
+        color: #1E293B;
         text-align: right;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-        border: 1px solid #475569;
-        border-right: 6px solid #3B82F6;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+        border: 1px solid #E2E8F0;
+        border-right: 6px solid #2563EB;
         transition: all 0.3s ease;
         cursor: pointer;
         margin-bottom: 10px;
     }
     .metric-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 10px 25px rgba(59, 130, 246, 0.4);
-        border-right-color: #F59E0B;
-        background: linear-gradient(135deg, #334155 0%, #1E293B 100%);
+        transform: translateY(-3px);
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.08);
+        border-right-color: #D97706;
     }
     .metric-card.alert {
-        border-right-color: #EF4444;
+        border-right-color: #DC2626;
     }
     .metric-card h3 {
         margin: 0;
-        font-size: 16px;
+        font-size: 15px;
         font-weight: 600;
-        color: #94A3B8;
+        color: #64748B;
     }
     .metric-card h2 {
-        margin: 12px 0 0 0;
-        font-size: 32px;
+        margin: 10px 0 0 0;
+        font-size: 30px;
         font-weight: 800;
-        color: #F8FAFC;
+        color: #0F172A;
     }
 
     /* الترويسة الرئيسية */
     .main-header {
-        background: linear-gradient(135deg, #1E3A8A 0%, #2563EB 100%);
+        background: linear-gradient(135deg, #1E40AF 0%, #3B82F6 100%);
         padding: 25px;
         border-radius: 12px;
         color: white;
         text-align: center;
         margin-bottom: 25px;
-        box-shadow: 0 10px 25px rgba(37, 99, 235, 0.25);
+        box-shadow: 0 10px 25px rgba(59, 130, 246, 0.2);
     }
     .main-header h1 {
         margin: 0;
-        font-size: 32px;
+        font-size: 30px;
         font-weight: 800;
     }
     .main-header p {
         margin: 8px 0 0 0;
-        font-size: 17px;
+        font-size: 16px;
         opacity: 0.95;
     }
     
-    /* الجداول */
+    /* الجداول الفاتحة */
     div.stDataFrame {
-        background-color: #1E293B;
+        background-color: #FFFFFF;
         padding: 15px;
         border-radius: 12px;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-        border: 1px solid #334155;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.03);
+        border: 1px solid #E2E8F0;
     }
     </style>
     """,
@@ -160,7 +166,6 @@ if "logged_in" not in st.session_state:
     st.session_state.user_role = ""
 
 if "assets_df" not in st.session_state:
-    # البيانات التجريبية الشاملة بالترتيب المطلوب: المنطقة -> المبنى -> الدور -> اسم الموظف -> الجهاز -> الشاشة -> الطابعة -> الباركود -> الحالة -> ملاحظات
     st.session_state.assets_df = pd.DataFrame(
         [
             {
@@ -228,7 +233,7 @@ if not st.session_state.logged_in:
     col1, col2, col3 = st.columns([1, 1.5, 1])
     with col2:
         st.markdown(
-            "<h3 style='text-align: center; color: #F8FAFC;'>تسجيل الدخول إلى النظام</h3>",
+            "<h3 style='text-align: center; color: #1E293B;'>تسجيل الدخول إلى النظام</h3>",
             unsafe_allow_html=True,
         )
         with st.form("login_form"):
@@ -261,14 +266,14 @@ if "current_page" not in st.session_state:
     st.session_state.current_page = "🏠 الرئيسية وإضافة العهد"
 
 st.sidebar.markdown(
-    "<h2 style='text-align: center; color: white;'>لوحة التحكم</h2>",
+    "<h2 style='text-align: center; color: #1E293B;'>لوحة التحكم</h2>",
     unsafe_allow_html=True,
 )
 st.sidebar.markdown(
     f"""
-    <div style='background: rgba(255,255,255,0.05); padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #334155;'>
-        <p style='margin: 0; font-size: 14px;'>المستخدم: <b>{st.session_state.current_user}</b></p>
-        <p style='margin: 5px 0 0 0; font-size: 13px; color: #94A3B8;'>الصلاحية: {st.session_state.user_role}</p>
+    <div style='background: #F1F5F9; padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #E2E8F0;'>
+        <p style='margin: 0; font-size: 14px; color: #1E293B;'>المستخدم: <b>{st.session_state.current_user}</b></p>
+        <p style='margin: 5px 0 0 0; font-size: 13px; color: #64748B;'>الصلاحية: {st.session_state.user_role}</p>
     </div>
 """,
     unsafe_allow_html=True,
@@ -324,9 +329,9 @@ total_monitors = len(
 total_printers = len(df[~df["موديل الطابعة"].isin(["لا يوجد", ""])])
 total_faults = len(df[df["حالة العطل"] != "سليم"])
 
-# عرض أزرار / بطاقات الإحصائيات التفاعلية في الأعلى (تنتقل للصفحات عند الضغط عليها)
+# عرض أزرار / بطاقات الإحصائيات التفاعلية في الأعلى
 st.markdown(
-    "<p style='color: #94A3B8; font-weight: 600; margin-bottom: 12px;'>📊 نظرة عامة سريعة (اضغط على البطاقة للانتقال للتقرير التفصيلي):</p>",
+    "<p style='color: #475569; font-weight: 600; margin-bottom: 12px;'>📊 نظرة عامة سريعة (اضغط على البطاقة للانتقال للتقرير التفصيلي):</p>",
     unsafe_allow_html=True,
 )
 m1, m2, m3, m4, m5 = st.columns(5)
@@ -377,7 +382,7 @@ with m5:
         st.rerun()
 
 st.markdown(
-    "<hr style='border-color: #334155; margin: 30px 0;'>", unsafe_allow_html=True
+    "<hr style='border-color: #E2E8F0; margin: 30px 0;'>", unsafe_allow_html=True
 )
 
 # -------------------------------------------------------------------------
@@ -388,7 +393,6 @@ page = st.session_state.current_page
 if page == "🏠 الرئيسية وإضافة العهد":
     st.subheader("📥 إضافة عهدة جديدة أو رفع ملف (Excel / CSV)")
 
-    # خيار رفع الملفات
     with st.expander(
         "📁 استيراد جماعي عبر ملف Excel أو CSV (متوافق مع ترتيب الشيت)",
         expanded=False,
@@ -415,7 +419,6 @@ if page == "🏠 الرئيسية وإضافة العهد":
     with st.form("add_asset_form"):
         col1, col2, col3 = st.columns(3)
 
-        # المناطق الست + مبنى الوزارة الرئيسي
         regions_list = [
             "مبنى وزارة التربية",
             "العاصمة التعليمية",
@@ -426,10 +429,8 @@ if page == "🏠 الرئيسية وإضافة العهد":
             "الأحمدي التعليمية",
         ]
         region = col1.selectbox("المنطقة / الجهة", regions_list)
-
         building = col2.text_input("اسم المبنى / المدرسة")
 
-        # حقل الدور (للمبنى الرئيسي 11 دور أو كتابة حرة للمدارس والمباني الأخرى)
         floor_options = [
             "الدور الأرضي",
             "الدور الأول",
